@@ -3,6 +3,7 @@ import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/anal
 import { Percent } from '@uniswap/sdk-core'
 import { TraceEvent, useTrace } from 'analytics'
 import AnimatedDropdown from 'components/AnimatedDropdown'
+import {ButtonEmphasis, ButtonSize, ThemeButton} from 'components/Button'
 import Column from 'components/Column'
 import { LoadingOpacityContainer } from 'components/Loader/styled'
 import { RowBetween, RowFixed } from 'components/Row'
@@ -112,6 +113,7 @@ function AdvancedSwapDetails(props: SwapDetailsProps & { open: boolean }) {
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.INPUT_TOKEN_FEE_ON_TRANSFER} />
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.OUTPUT_TOKEN_FEE_ON_TRANSFER} />
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.NETWORK_COST} />
+        <div><ThemeButton  size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>View Pair Info</ThemeButton></div>
         <Separator />
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.ROUTING_INFO} />
       </SwapDetailsWrapper>
