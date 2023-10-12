@@ -129,12 +129,12 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/swap', getElement: () => <Swap /> }),
   createRouteDefinition({ path: '/pool/v2/find', getElement: () => <PoolFinder /> }),
   createRouteDefinition({ path: '/pool/v2', getElement: () => <PoolV2 /> }),
-  createRouteDefinition({ path: '/pool', getElement: () => <Pool /> }),
-  createRouteDefinition({ path: '/pool/:tokenId', getElement: () => <PositionPage /> }),
+  /*createRouteDefinition({ path: '/pool', getElement: () => <Pool /> }),
+  createRouteDefinition({ path: '/pool/:tokenId', getElement: () => <PositionPage /> }),*/
   createRouteDefinition({ path: '/pools/v2/find', getElement: () => <PoolFinder /> }),
   createRouteDefinition({ path: '/pools/v2', getElement: () => <PoolV2 /> }),
-  createRouteDefinition({ path: '/pools', getElement: () => <Pool /> }),
-  createRouteDefinition({ path: '/pools/:tokenId', getElement: () => <PositionPage /> }),
+  /*createRouteDefinition({ path: '/pools', getElement: () => <Pool /> }),
+  createRouteDefinition({ path: '/pools/:tokenId', getElement: () => <PositionPage /> }),*/
   createRouteDefinition({
     path: '/add/v2',
     nestedPaths: [':currencyIdA', ':currencyIdA/:currencyIdB'],
