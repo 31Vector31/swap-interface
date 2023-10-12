@@ -15,6 +15,7 @@ import { isSubmittableTrade } from 'state/routing/utils'
 import styled, { useTheme } from 'styled-components'
 import { Separator, ThemedText } from 'theme/components'
 import { useFormatter } from 'utils/formatNumbers'
+import { Link as NativeLink } from 'react-router-dom'
 
 import GasEstimateTooltip from './GasEstimateTooltip'
 import SwapLineItem, { SwapLineItemType } from './SwapLineItem'
@@ -39,6 +40,9 @@ const Wrapper = styled(Column)`
   border: 1px solid ${({ theme }) => theme.surface3};
   border-radius: 16px;
   padding: 12px 16px;
+`
+const Link = styled(NativeLink)`
+  text-decoration: none;
 `
 
 interface SwapDetailsProps {
@@ -113,7 +117,7 @@ function AdvancedSwapDetails(props: SwapDetailsProps & { open: boolean }) {
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.INPUT_TOKEN_FEE_ON_TRANSFER} />
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.OUTPUT_TOKEN_FEE_ON_TRANSFER} />
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.NETWORK_COST} />
-        <div><ThemeButton  size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>View Pair Info</ThemeButton></div>
+        <div><Link to="/token-pair"><ThemeButton  size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>View Pair Info</ThemeButton></Link></div>
         <Separator />
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.ROUTING_INFO} />
       </SwapDetailsWrapper>
