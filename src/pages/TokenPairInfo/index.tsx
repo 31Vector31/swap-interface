@@ -4,6 +4,7 @@ import {ThemedText} from "../../theme/components";
 import {MAX_WIDTH_MEDIA_BREAKPOINT} from "../../components/Tokens/constants";
 import TokenPairTable from "components/TokenPairTable";
 import TokenPairHeader from "./TokenPairHeader";
+import {ButtonEmphasis, ButtonSize, ThemeButton} from "../../components/Button";
 
 const ExploreContainer = styled.div`
   width: 100%;
@@ -29,6 +30,10 @@ const InnerContainer = styled.div`
   gap: 15px;
 `
 
+const ButtonsContainer = styled(InnerContainer)`
+  margin-top: 12px;
+`
+
 const TokenPairInfo = () => {
 
     return (
@@ -46,6 +51,12 @@ const TokenPairInfo = () => {
                 </InnerContainer>
                 <TokenPairTable title={"Pair Owner Address"} body={[{value:"0x045u456ijtrdkfjlkgi5u49ikdj4i4"}]}/>
                 <TokenPairTable title={"Tax Breakdown"} body={[{key:"Liquidity Fee", value:"0%"},{key:"Team Fee", value:"0%"},{key:"Rewards Fee", value:"0%"}]}/>
+                <ButtonsContainer>
+                    <ThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>Withdraw Team Fees</ThemeButton>
+                    <ThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>Edit Fees</ThemeButton>
+                    <ThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>Initialize Rewards Pool</ThemeButton>
+                    <ThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>Withdraw Treasury Fees</ThemeButton>
+                </ButtonsContainer>
             </BasicContainer>
         </ExploreContainer>
     )
