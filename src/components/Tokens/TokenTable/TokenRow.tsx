@@ -300,7 +300,7 @@ export const HEADER_DESCRIPTIONS: Record<TokenSortMethod, ReactNode | undefined>
   [TokenSortMethod.PERCENT_CHANGE]: undefined,
   [TokenSortMethod.TOTAL_VALUE_LOCKED]: (
     <Trans>
-      Total value locked (TVL) is the aggregate amount of the asset available across all Uniswap v3 liquidity pools.
+      Total value locked (TVL) is the aggregate amount of the asset available across all Baptswap liquidity pools.
     </Trans>
   ),
   [TokenSortMethod.VOLUME]: (
