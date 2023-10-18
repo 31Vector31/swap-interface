@@ -49,7 +49,7 @@ const StyledTokenRow = styled.div<{
   background-color: transparent;
   display: grid;
   font-size: 16px;
-  grid-template-columns: 1fr 7fr 4fr 4fr 4fr 4fr 5fr;
+  grid-template-columns: 1fr 7fr 4fr 3fr 3fr 3fr 3fr 5fr;
   line-height: 24px;
   max-width: ${MAX_WIDTH_MEDIA_BREAKPOINT};
   min-width: 390px;
@@ -306,6 +306,9 @@ export const HEADER_DESCRIPTIONS: Record<TokenSortMethod, ReactNode | undefined>
   [TokenSortMethod.VOLUME]: (
     <Trans>Volume is the amount of the asset that has been traded on Uniswap v3 during the selected time frame.</Trans>
   ),
+  [TokenSortMethod.TOTAL_VALUE_STAKED]: (
+    <Trans>Total value staked (TVS) is aggregate amount of asset available across all Baptswap staking pools.</Trans>
+  ),
 }
 
 /* Get singular header cell for header row */
@@ -352,6 +355,7 @@ function TokenRow({
   price,
   percentChange,
   tvl,
+  tvs,
   volume,
   sparkLine,
   ...rest
@@ -361,6 +365,7 @@ function TokenRow({
   listNumber: ReactNode
   $loading?: boolean
   tvl: ReactNode
+  tvs: ReactNode
   price: ReactNode
   percentChange: ReactNode
   sparkLine?: ReactNode
@@ -382,6 +387,9 @@ function TokenRow({
       <TvlCell data-testid="tvl-cell" sortable={header}>
         {tvl}
       </TvlCell>
+      <TvlCell sortable={header}>
+        {tvs}
+      </TvlCell>
       <VolumeCell data-testid="volume-cell" sortable={header}>
         {volume}
       </VolumeCell>
@@ -402,6 +410,7 @@ export function HeaderRow() {
       price={<HeaderCell category={TokenSortMethod.PRICE} />}
       percentChange={<HeaderCell category={TokenSortMethod.PERCENT_CHANGE} />}
       tvl={<HeaderCell category={TokenSortMethod.TOTAL_VALUE_LOCKED} />}
+      tvs={<HeaderCell category={TokenSortMethod.TOTAL_VALUE_STAKED} />}
       volume={<HeaderCell category={TokenSortMethod.VOLUME} />}
       sparkLine={null}
     />
@@ -424,6 +433,7 @@ export function LoadingRow(props: { first?: boolean; last?: boolean }) {
       price={<MediumLoadingBubble />}
       percentChange={<LoadingBubble />}
       tvl={<LoadingBubble />}
+      tvs={<LoadingBubble />}
       volume={<LoadingBubble />}
       sparkLine={<SparkLineLoadingBubble />}
       {...props}
@@ -512,6 +522,12 @@ export const LoadedRow = forwardRef((props: LoadedRowProps, ref: ForwardedRef<HT
               })}
             </ClickableContent>
           }
+          tvs={<ClickableContent>
+            {formatNumber({
+              input: token.market?.totalValueLocked?.value,
+              type: NumberType.FiatTokenStats,
+            })}
+          </ClickableContent>}
           volume={
             <ClickableContent>
               {formatNumber({

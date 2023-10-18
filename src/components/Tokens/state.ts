@@ -7,6 +7,7 @@ export enum TokenSortMethod {
   PRICE = 'Price',
   PERCENT_CHANGE = 'Change',
   TOTAL_VALUE_LOCKED = 'TVL',
+  TOTAL_VALUE_STAKED = 'TVS',
   VOLUME = 'Volume',
 }
 
