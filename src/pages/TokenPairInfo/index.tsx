@@ -33,9 +33,7 @@ const InnerContainer = styled.div`
 const ButtonsContainer = styled(InnerContainer)`
   margin-top: 12px;
 `
-
 const TokenPairInfo = () => {
-
     return (
         <ExploreContainer>
             <TitleContainer>
@@ -61,6 +59,5 @@ const TokenPairInfo = () => {
         </ExploreContainer>
     )
 }
-
 export default TokenPairInfo
 
