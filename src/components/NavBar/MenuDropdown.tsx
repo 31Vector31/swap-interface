@@ -141,7 +141,7 @@ export const MenuDropdown = () => {
             <Column gap="16">
               <Column paddingX="8" gap="4">
                 <Box display={{ sm: 'none', lg: 'flex', xxl: 'none' }}>
-                  <PrimaryMenuRow to="/pool" close={toggleOpen}>
+                  <PrimaryMenuRow to="/pools/v2" close={toggleOpen}>
                     <Icon>
                       <PoolIcon width={24} height={24} fill={theme.neutral1} />
                     </Icon>
