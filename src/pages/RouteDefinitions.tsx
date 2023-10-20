@@ -162,7 +162,7 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/remove/:tokenId', getElement: () => <RemoveLiquidityV3 /> }),
   createRouteDefinition({ path: '/migrate/v2', getElement: () => <MigrateV2 /> }),
   createRouteDefinition({ path: '/migrate/v2/:address', getElement: () => <MigrateV2Pair /> }),
-  createRouteDefinition({
+  /*createRouteDefinition({
     path: '/nfts',
     getElement: () => (
       <Suspense fallback={null}>
@@ -206,7 +206,7 @@ export const routes: RouteDefinition[] = [
       </Suspense>
     ),
     enabled: (args) => !args.shouldDisableNFTRoutes,
-  }),
+  }),*/
   createRouteDefinition({ path: '*', getElement: () => <Navigate to="/not-found" replace /> }),
   createRouteDefinition({ path: '/not-found', getElement: () => <NotFound /> }),
 ]

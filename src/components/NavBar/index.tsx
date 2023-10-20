@@ -70,11 +70,14 @@ export const PageTabs = () => {
       <MenuItem href={`/tokens/${chainName.toLowerCase()}`} isActive={pathname.startsWith('/tokens')}>
         <Trans>Tokens</Trans>
       </MenuItem>
-      {!shouldDisableNFTRoutes && (
+      <MenuItem href={`/staking-pools`} isActive={pathname.startsWith('/staking-pools')}>
+        <Trans><span style={{whiteSpace: "nowrap"}}>Stake To Earn</span></Trans>
+      </MenuItem>
+      {/*{!shouldDisableNFTRoutes && (
         <MenuItem dataTestId="nft-nav" href="/nfts" isActive={isNftPage}>
           <Trans>NFTs</Trans>
         </MenuItem>
-      )}
+      )}*/}
       <Box display={{ sm: 'flex', lg: 'none', xxl: 'flex' }} width="full">
         <MenuItem href="/pools/v2" dataTestId="pool-nav-link" isActive={isPoolActive}>
           <Trans>Pools</Trans>
