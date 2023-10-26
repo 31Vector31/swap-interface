@@ -16,6 +16,8 @@ import { Provider } from 'react-redux'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 import { SystemThemeUpdater, ThemeColorMetaUpdater } from 'theme/components/ThemeToggle'
 import { isBrowserRouterEnabled } from 'utils/env'
+import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
+import { PontemWallet } from "@pontem/wallet-adapter-plugin";
 
 import Web3Provider from './components/Web3Provider'
 import { LanguageProvider } from './i18n'
@@ -56,29 +58,35 @@ const container = document.getElementById('root') as HTMLElement
 
 const Router = isBrowserRouterEnabled() ? BrowserRouter : HashRouter
 
+const wallets = [
+    new PontemWallet(),
+];
+
 createRoot(container).render(
   <StrictMode>
-    <Provider store={store}>
-      <FeatureFlagsProvider>
-        <QueryClientProvider client={queryClient}>
-          <Router>
-            <LanguageProvider>
-              <Web3Provider>
-                <ApolloProvider client={apolloClient}>
-                  <BlockNumberProvider>
-                    <Updaters />
-                    <ThemeProvider>
-                      <ThemedGlobalStyle />
-                      <App />
-                    </ThemeProvider>
-                  </BlockNumberProvider>
-                </ApolloProvider>
-              </Web3Provider>
-            </LanguageProvider>
-          </Router>
-        </QueryClientProvider>
-      </FeatureFlagsProvider>
-    </Provider>
+    <AptosWalletAdapterProvider plugins={wallets} autoConnect={true}>
+        <Provider store={store}>
+            <FeatureFlagsProvider>
+                <QueryClientProvider client={queryClient}>
+                    <Router>
+                        <LanguageProvider>
+                            <Web3Provider>
+                                <ApolloProvider client={apolloClient}>
+                                    <BlockNumberProvider>
+                                        <Updaters />
+                                        <ThemeProvider>
+                                            <ThemedGlobalStyle />
+                                            <App />
+                                        </ThemeProvider>
+                                    </BlockNumberProvider>
+                                </ApolloProvider>
+                            </Web3Provider>
+                        </LanguageProvider>
+                    </Router>
+                </QueryClientProvider>
+            </FeatureFlagsProvider>
+        </Provider>
+    </AptosWalletAdapterProvider>
   </StrictMode>
 )
 

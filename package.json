@@ -168,6 +168,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.2",
+    "@aptos-labs/wallet-adapter-ant-design": "^1.2.5",
+    "@aptos-labs/wallet-adapter-react": "^1.3.2",
     "@coinbase/wallet-sdk": "^3.6.4",
     "@fontsource/ibm-plex-mono": "^4.5.1",
     "@fontsource/inter": "^4.5.1",
@@ -184,6 +186,7 @@
     "@looksrare/sdk": "^0.10.2",
     "@metamask/jazzicon": "^2.0.0",
     "@opensea/seaport-js": "^1.2.0",
+    "@pontem/wallet-adapter-plugin": "^0.2.0",
     "@popperjs/core": "^2.4.4",
     "@reach/dialog": "^0.10.3",
     "@reach/portal": "^0.10.3",

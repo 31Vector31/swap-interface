@@ -14,6 +14,7 @@ import { ProfilePageStateType } from 'nft/types'
 import { ReactNode, useCallback } from 'react'
 import { NavLink, NavLinkProps, useLocation, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
 
 import { useIsNavSearchInputVisible } from '../../nft/hooks/useIsNavSearchInputVisible'
 import { Bag } from './Bag'
@@ -152,7 +153,8 @@ const Navbar = ({ blur }: { blur: boolean }) => {
                 </Box>
               )}
 
-              <Web3Status />
+              {/*<Web3Status />*/}
+              <WalletSelector />
             </Row>
           </Box>
         </Box>
