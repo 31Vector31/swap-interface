@@ -84,8 +84,8 @@ const ItemPool = ({pool}: any) => {
         <Pool>
             <Header onClick={()=>revealDetails()}>
                 <HeaderMain>
-                    <img src="/images/baptlabs-mini.png" alt="baptlabs" width={56} height={56}/>
-                    <HeaderTitle>Stake BAPT</HeaderTitle>
+                    <img src={pool.img} alt={pool.name} width={56} height={56}/>
+                    <HeaderTitle>{pool.name}</HeaderTitle>
                 </HeaderMain>
                 <div><ThemeButton size={ButtonSize.small} emphasis={ButtonEmphasis.low}>{showDetails ? "HIDE" : "EXPAND"}</ThemeButton></div>
             </Header>
@@ -96,7 +96,7 @@ const ItemPool = ({pool}: any) => {
                             <BlockTitle>Your Rewards</BlockTitle>
                             <RewardsBody>
                                 <Value>0 APT</Value>
-                                <Value>0 BAPT</Value>
+                                <Value>0 {pool.symbol}</Value>
                             </RewardsBody>
                             <StyledButtonLight>
                                 <Trans>Connect wallet</Trans>
@@ -104,24 +104,24 @@ const ItemPool = ({pool}: any) => {
                         </Rewards>
                         <ManageStake>
                             <BlockTitle>Manage Stake</BlockTitle>
-                            <div>Balance: <Value>0 BAPT</Value></div>
+                            <div>Balance: <Value>0 {pool.symbol}</Value></div>
                             <InputContainer>
-                                <StyledNumericalInput value={""} onUserInput={()=>{}} placeholder={"Ex. 1 BAPT"}/>
+                                <StyledNumericalInput value={""} onUserInput={()=>{}} placeholder={"Ex. 1 " + pool.symbol}/>
                                 <ThemeButton size={ButtonSize.small} emphasis={ButtonEmphasis.highSoft}>Connect</ThemeButton>
                             </InputContainer>
                             <InputContainer>
-                                <StyledNumericalInput value={""} onUserInput={()=>{}} placeholder={"Ex. 1 BAPT"}/>
+                                <StyledNumericalInput value={""} onUserInput={()=>{}} placeholder={"Ex. 1 " + pool.symbol}/>
                                 <ThemeButton size={ButtonSize.small} emphasis={ButtonEmphasis.highSoft}>Connect</ThemeButton>
                             </InputContainer>
                         </ManageStake>
                     </InnerContainer>
                     <Stake>
                         <div>Your stake:</div>
-                        <Value>0 BAPT</Value>
+                        <Value>0 {pool.symbol}</Value>
                     </Stake>
                     <Stake>
                         <div>Total staked:</div>
-                        <Value>0 BAPT</Value>
+                        <Value>0 {pool.symbol}</Value>
                     </Stake>
                 </>}
         </Pool>

@@ -29,26 +29,29 @@ const BasicContainer = styled.div`
 
 const rewardsPoolList = [
     {
-        stakedToken: {
-            name: "BaptLabs",
-            symbol: "BAPTV1",
-            iconSrc: 5,
-            address:
-                "0xb73a7b82af68fc1ba6e123688b95adec1fec0bcfc256b5d3a43de227331a7abd::baptlabs::BaptLabs",
-            decimals: 8,
-        },
-        pairedToken: 5,
+        name: "Stake BAPT",
+        img: "/images/baptlabs-mini.png",
+        symbol: "BAPT",
     },
     {
-        stakedToken: {
-            name: "MAU Protocol",
-            symbol: "MAU",
-            iconSrc: 5,
-            address:
-                "0xf8fa55ff4265fa9586f74d00da4858b8a0d2320bbe94cb0e91bf3a40773eb60::MAU::MAU",
-            decimals: 6,
-        },
-        pairedToken: 4,
+        name: "Stake PEPE",
+        img: "/images/pepelogo.png",
+        symbol: "PEPE",
+    },
+    {
+        name: "Stake NEBULA",
+        img: "/images/nebula.png",
+        symbol: "NEBULA",
+    },
+    {
+        name: "Stake BAPTV1",
+        img: "/images/baptlabs-mini.png",
+        symbol: "BAPTV1",
+    },
+    {
+        name: "Stake MAU",
+        img: "/images/MAU-icon.jpeg",
+        symbol: "MAU",
     },
 ];
 
