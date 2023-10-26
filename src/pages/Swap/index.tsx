@@ -78,6 +78,19 @@ export const ArrowContainer = styled.div`
   height: 100%;
 `
 
+const SwapBg = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  background: url("/images/ForestBg.webp") no-repeat bottom;
+  background-size: contain;
+`
+
 const SwapSection = styled.div`
   background-color: ${({ theme }) => theme.surface2};
   border-radius: 16px;
@@ -384,6 +397,9 @@ export function Swap({
     [onUserInput, trace]
   )
 
+  const location = useLocation()
+  const isSwapPage = location.pathname.includes('swap')
+
   const navigate = useNavigate()
   const swapIsUnsupported = useIsSwapUnsupported(currencies[Field.INPUT], currencies[Field.OUTPUT])
 
@@ -602,6 +618,7 @@ export function Swap({
 
   const swapElement = (
     <SwapWrapper isDark={isDark} className={className} id="swap-page">
+      {isSwapPage && <SwapBg/>}
       <TokenSafetyModal
         isOpen={importTokensNotInDefault.length > 0 && !dismissTokenWarning}
         tokenAddress={importTokensNotInDefault[0]?.address}
