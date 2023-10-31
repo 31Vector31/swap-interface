@@ -72,7 +72,7 @@ export const PageTabs = () => {
         <Trans>Tokens</Trans>
       </MenuItem>
       <MenuItem href={`/staking-pools`} isActive={pathname.startsWith('/staking-pools')}>
-        <Trans><span style={{whiteSpace: "nowrap"}}>Stake To Earn</span></Trans>
+        <Trans><span style={{whiteSpace: "nowrap"}}>Earn</span></Trans>
       </MenuItem>
       {/*{!shouldDisableNFTRoutes && (
         <MenuItem dataTestId="nft-nav" href="/nfts" isActive={isNftPage}>
