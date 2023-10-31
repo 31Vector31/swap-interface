@@ -18,6 +18,8 @@ import { SystemThemeUpdater, ThemeColorMetaUpdater } from 'theme/components/Them
 import { isBrowserRouterEnabled } from 'utils/env'
 import { AptosWalletAdapterProvider } from "@aptos-labs/wallet-adapter-react";
 import { PontemWallet } from "@pontem/wallet-adapter-plugin";
+import { PetraWallet } from "petra-plugin-wallet-adapter";
+import { TrustWallet } from "@trustwallet/aptos-wallet-adapter";
 
 import Web3Provider from './components/Web3Provider'
 import { LanguageProvider } from './i18n'
@@ -59,6 +61,8 @@ const container = document.getElementById('root') as HTMLElement
 const Router = isBrowserRouterEnabled() ? BrowserRouter : HashRouter
 
 const wallets = [
+    new PetraWallet(),
+    new TrustWallet(),
     new PontemWallet(),
 ];
 
