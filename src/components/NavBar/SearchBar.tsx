@@ -111,7 +111,7 @@ export const SearchBar = () => {
     ? t(i18n)`Search`
     : shouldDisableNFTRoutes
     ? t(i18n)`Search tokens`
-    : t(i18n)`Search tokens and NFT collections`
+    : t(i18n)`Search tokens and pools`
 
   const handleKeyPress = useCallback(
     (event: any) => {
