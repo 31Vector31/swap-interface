@@ -618,7 +618,7 @@ export function Swap({
 
   const swapElement = (
     <SwapWrapper isDark={isDark} className={className} id="swap-page">
-      {isSwapPage && <SwapBg/>}
+      {/*{isSwapPage && <SwapBg/>}*/}
       <TokenSafetyModal
         isOpen={importTokensNotInDefault.length > 0 && !dismissTokenWarning}
         tokenAddress={importTokensNotInDefault[0]?.address}
