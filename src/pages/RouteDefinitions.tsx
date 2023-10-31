@@ -9,6 +9,7 @@ import { isBrowserRouterEnabled } from 'utils/env'
 // High-traffic pages (index and /swap) should not be lazy-loaded.
 import Landing from './Landing'
 import Swap from './Swap'
+import SwapBapt from './SwapBapt'
 
 const NftExplore = lazy(() => import('nft/pages/explore'))
 const Collection = lazy(() => import('nft/pages/collection'))
@@ -128,7 +129,8 @@ export const routes: RouteDefinition[] = [
     path: '/send',
     getElement: () => <Navigate to={{ ...location, pathname: '/swap' }} replace />,
   }),
-  createRouteDefinition({ path: '/swap', getElement: () => <Swap /> }),
+  createRouteDefinition({ path: '/swap', getElement: () => <SwapBapt /> }),
+  createRouteDefinition({ path: '/swap2', getElement: () => <Swap /> }),
   createRouteDefinition({ path: '/pool/v2/find', getElement: () => <PoolFinder /> }),
   createRouteDefinition({ path: '/pool/v2', getElement: () => <PoolV2 /> }),
   /*createRouteDefinition({ path: '/pool', getElement: () => <Pool /> }),
