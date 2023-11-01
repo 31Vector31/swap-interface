@@ -469,7 +469,7 @@ export default function Landing() {
             Download the Uniswap Wallet for iOS
           </DownloadWalletLink>*/}
         </ContentContainer>
-        <AboutContentContainer isDarkMode={isDarkMode}>
+        {/*<AboutContentContainer isDarkMode={isDarkMode}>
           <CardGrid cols={cards.length} ref={cardsRef}>
             {cards.map(({ darkBackgroundImgSrc, lightBackgroundImgSrc, ...card }) => (
               <Card
@@ -486,7 +486,7 @@ export default function Landing() {
           </CardGrid>
           <ProtocolBanner />
           <AboutFooter />
-        </AboutContentContainer>
+        </AboutContentContainer>*/}
       </PageContainer>
     </Trace>
   )
