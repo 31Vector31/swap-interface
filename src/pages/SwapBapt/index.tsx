@@ -25,8 +25,9 @@ import {
 } from '@uniswap/analytics-events'
 import {ArrowDown} from "react-feather";
 import {ArrowContainer} from "../Swap";
-import {getTokenPairMetadata, calculateRate, getAccountCoinValue} from "./swapUtils";
+import {getTokenPairMetadata, calculateRate, getAccountCoinValue, SWAP_ADDRESS} from "./swapUtils";
 import SwapDetails from './SwapDetails';
+import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
 
 const SwapBg = styled.div`
   position: fixed;
@@ -77,6 +78,11 @@ const SwapSection = styled.div`
   }
 `
 
+const StyledDiv = styled.div`
+  display: flex;
+  justify-content: center;
+`
+
 const OutputSwapSection = styled(SwapSection)`
   border-bottom: ${({ theme }) => `1px solid ${theme.surface1}`};
 `
@@ -110,8 +116,10 @@ export default function SwapPage({ className }: { className?: string }) {
     )
 }
 
-const SwapButton = styled(ButtonLight)`
+const StyledButtonLight = styled(ButtonLight)`
   z-index: 0;
+  font-weight: 535;
+  border-radius: 16px;
 `
 
 export function Swap() {
@@ -120,13 +128,19 @@ export function Swap() {
 
     const [inputToken, setInputToken] = useState(0);
     const [outputToken, setOutputToken] = useState(3);
+
     const [inputAmount, setInputAmount] = useState("");
     const [outputAmount, setOutputAmount] = useState("");
 
-    const [tokenPairMetadata, setTokenPairMetadata] = useState<TokenPairMetadataType>();
-
     const [inputBalance, setInputBalance] = useState(0);
     const [outputBalance, setOutputBalance] = useState(0);
+
+    const [isInputRegistered, setIsInputRegistered] = useState<boolean>(false);
+    const [isOutputRegistered, setIsOutputRegistered] = useState<boolean>(false);
+
+    const [tokenPairMetadata, setTokenPairMetadata] = useState<TokenPairMetadataType>();
+
+    const [isLastEditInput, setIsLastEditInput] = useState<boolean>(true);
 
     const {
         connect,
@@ -158,47 +172,95 @@ export function Swap() {
     };
 
     const onSignAndSubmitTransaction = async () => {
+        if (isLastEditInput) {
+            let payload: Types.TransactionPayload = {
+                type: "entry_function_payload",
+                function: `${SWAP_ADDRESS}::router::swap_exact_input`,
+                type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[outputToken].address],
+                arguments:
+                    [(Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals).toFixed(0),
+                        (Number(outputAmount) * 10 ** TOKEN_LIST[outputToken].decimals * 0.85).toFixed(0)]
+            };
+            submitAndUpdate(payload);
+        }
+        else {
+            let payload: Types.TransactionPayload = {
+                type: "entry_function_payload",
+                function: `${SWAP_ADDRESS}::router::swap_exact_output`,
+                type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[outputToken].address],
+                arguments: [
+                    (Number(outputAmount) * 10 ** TOKEN_LIST[outputToken].decimals).toFixed(0),
+                    (Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals * 1.15).toFixed(0),
+                ],
+            };
+            submitAndUpdate(payload);
+        }
+    };
+
+   /* const onSignAndSubmitTransaction = async () => {
+        const faucetClient = new AptosFaucetClient({BASE: "https://faucet.testnet.aptoslabs.com"});
+        const amount = 5;
+        const address = "0xe7a10a6349ded659e0acdc7be6977cc99814ff085dc19bf76f8b75dbd83dc38b";
+        const request: FundRequest = {
+            amount,
+            address,
+        };
+        // @ts-ignore
+        const response = await faucetClient.fund({ requestBody: request });
+        /!*await aptosClient.waitForTransaction(response?.hash || "");*!/
+    };*/
+
+
+
+    const onRegisterToken = async (isInputToken: boolean) => {
         const payload: Types.TransactionPayload = {
             type: "entry_function_payload",
-            function: `${"0x90fdf0b1ef78d8dc098e1e7cd3b6fe1f084c808484bc243a1da2a24e7ef06096"}::router::swap_exact_input`,
-            type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[outputToken].address],
-            arguments:
-                [(Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals).toFixed(0),
-                    (Number(outputAmount) * 10 ** TOKEN_LIST[outputToken].decimals * 0.97).toFixed(0)]
+            function: "0x1::managed_coin::register",
+            type_arguments: [TOKEN_LIST[isInputToken ? inputToken :outputToken].address],
+            arguments: [], // 1 is in Octas
         };
-        /*const payload: Types.TransactionPayload = {
-            type: "entry_function_payload",
-            function: `${"0x90fdf0b1ef78d8dc098e1e7cd3b6fe1f084c808484bc243a1da2a24e7ef06096"}::router::swap_exact_input`,
-            type_arguments: ["0x97c8aca6082f2ef7a0046c72eb81ebf203ca23086baf15557579570c86a89fd3::test_coins::TestUSDT", "0x97c8aca6082f2ef7a0046c72eb81ebf203ca23086baf15557579570c86a89fd3::test_coins::TestBAPT"],
-            arguments: [100000000, 10051897
-                /!*(Number(1) * 10 ** 6).toFixed(0),
-                (Number(6) * 10 ** 6 * 0.85).toFixed(0),*!/
-            ],
-        };*/
 
-        /*const payload: Types.TransactionPayload = {
-          type: "entry_function_payload",
-          function: `${"0x90fdf0b1ef78d8dc098e1e7cd3b6fe1f084c808484bc243a1da2a24e7ef06096"}::router::create_rewards_pool`,
-          type_arguments: ["0x97c8aca6082f2ef7a0046c72eb81ebf203ca23086baf15557579570c86a89fd3::test_coins::TestUSDT", "0x97c8aca6082f2ef7a0046c72eb81ebf203ca23086baf15557579570c86a89fd3::test_coins::TestBAPT"],
-          arguments: [true],
-        };*/
+        try {
+            const response = await signAndSubmitTransaction(payload);
+            // if you want to wait for transaction
+            await aptosClient.waitForTransaction(response?.hash || "");
 
-
-
-        submitAndUpdate(payload);
+            if(isInputToken) setIsInputRegistered(true);
+            else setIsOutputRegistered(true);
+        } catch (error: any) {
+            console.log("error", error);
+        }
     };
 
     useEffect(() => {
         getTokenPairMetadata(TOKEN_LIST[inputToken].address, TOKEN_LIST[outputToken].address).then(res => {
-            let data = res.data;
-            let metadata: TokenPairMetadataType = {
-                balance_x: data.balance_x.value,
-                balance_y: data.balance_y.value,
-                liquidity_fee: data.liquidity_fee,
-                team_fee: data.team_fee,
-                rewards_fee: data.rewards_fee,
-            };
-            setTokenPairMetadata(metadata);
+            if(res.data) {
+                let data = res.data;
+                let metadata: TokenPairMetadataType = {
+                    balance_x: data.balance_x.value,
+                    balance_y: data.balance_y.value,
+                    liquidity_fee: data.liquidity_fee,
+                    team_fee: data.team_fee,
+                    rewards_fee: data.rewards_fee,
+                };
+                setTokenPairMetadata(metadata);
+            }else {
+                getTokenPairMetadata(TOKEN_LIST[outputToken].address, TOKEN_LIST[inputToken].address).then(res => {
+                    if(res.data) {
+                        let data = res.data;
+                        let metadata: TokenPairMetadataType = {
+                            balance_x: data.balance_y.value,
+                            balance_y: data.balance_x.value,
+                            liquidity_fee: data.liquidity_fee,
+                            team_fee: data.team_fee,
+                            rewards_fee: data.rewards_fee,
+                        };
+                        setTokenPairMetadata(metadata);
+                    }else {
+                        setTokenPairMetadata(undefined);
+                    }
+                });
+            }
         });
     }, [inputToken, outputToken]);
 
@@ -211,15 +273,27 @@ export function Swap() {
         if (connected && account) {
             if (TOKEN_LIST[inputToken].address) {
                 getAccountCoinValue(account.address, TOKEN_LIST[inputToken].address).then(res => {
-                    const value = res.data.coin.value;
-                    setInputBalance(value);
+                    if(res.data) {
+                        const value = res.data.coin.value;
+                        setInputBalance(value);
+                        setIsInputRegistered(true);
+                    }else {
+                        setInputBalance(0);
+                        setIsInputRegistered(false);
+                    }
                 });
             }
 
             if (TOKEN_LIST[outputToken].address) {
                 getAccountCoinValue(account.address, TOKEN_LIST[outputToken].address).then(res => {
-                    const value = res.data.coin.value;
-                    setOutputBalance(value);
+                    if(res.data) {
+                        const value = res.data.coin.value;
+                        setOutputBalance(value);
+                        setIsOutputRegistered(true);
+                    }else {
+                        setOutputBalance(0);
+                        setIsOutputRegistered(false);
+                    }
                 });
             }
         }
@@ -227,6 +301,7 @@ export function Swap() {
 
     const onInputAmount = useCallback((value: string) => {
         setInputAmount(value);
+        setIsLastEditInput(true);
         if(tokenPairMetadata) {
             const outputValue = calculateRate(value,
                 (Number(tokenPairMetadata.balance_y) *
@@ -240,6 +315,7 @@ export function Swap() {
 
     const onOutputAmount = useCallback((value: string) => {
         setOutputAmount(value);
+        setIsLastEditInput(false);
         if(tokenPairMetadata) {
             const inputValue = calculateRate(
                 value,
@@ -251,6 +327,48 @@ export function Swap() {
             setInputAmount(inputValue.toFixed(2).toString());
         }
     }, [tokenPairMetadata, inputToken, outputToken]);
+
+    const swapTokens = useCallback(() => {
+        let prevInputToken = inputToken;
+        let prevOutputToken = outputToken;
+        setInputToken(prevOutputToken);
+        setOutputToken(prevInputToken);
+
+        let prevInputAmount = inputAmount;
+        let prevOutputAmount = outputAmount;
+        setInputAmount(prevOutputAmount);
+        setOutputAmount(prevInputAmount);
+
+        /*if(isLastEditInput) onOutputAmount(inputAmount);
+        else onInputAmount(outputAmount);*/
+    }, [inputToken, outputToken, inputAmount, outputAmount]);
+
+    const mainButton = () => {
+        switch (true) {
+            case !connected:
+                return <StyledDiv><WalletSelector/></StyledDiv>;
+            case !tokenPairMetadata:
+                return (<StyledButtonLight onClick={()=>{}} disabled={true}>
+                            <Trans>Non-existent pair</Trans>
+                        </StyledButtonLight>);
+            case !isInputRegistered:
+                return (<StyledButtonLight onClick={()=>onRegisterToken(true)}>
+                            <Trans>Register {TOKEN_LIST[inputToken].symbol}</Trans>
+                        </StyledButtonLight>);
+            case !isOutputRegistered:
+                return (<StyledButtonLight onClick={()=>onRegisterToken(false)}>
+                            <Trans>Register {TOKEN_LIST[outputToken].symbol}</Trans>
+                        </StyledButtonLight>);
+            case (Number(inputAmount) > inputBalance):
+                return (<StyledButtonLight onClick={()=>{}} disabled={true}>
+                            <Trans>Insufficient {TOKEN_LIST[inputToken].symbol} balance</Trans>
+                        </StyledButtonLight>);
+            default:
+                return (<StyledButtonLight onClick={onSignAndSubmitTransaction}>
+                            <Trans>Swap</Trans>
+                        </StyledButtonLight>);
+        }
+    }
 
     return (
         <SwapWrapper isDark={isDark}>
@@ -270,19 +388,13 @@ export function Swap() {
                     </Trace>
                 </SwapSection>
                 <ArrowWrapper clickable={true}>
-                    <TraceEvent
-                        events={[BrowserEvent.onClick]}
-                        name={SwapEventName.SWAP_TOKENS_REVERSED}
-                        element={InterfaceElementName.SWAP_TOKENS_REVERSE_ARROW_BUTTON}
+                    <ArrowContainer
+                        data-testid="swap-currency-button"
+                        onClick={swapTokens}
+                        color={theme.neutral1}
                     >
-                        <ArrowContainer
-                            data-testid="swap-currency-button"
-                            onClick={() => {}}
-                            color={theme.neutral1}
-                        >
-                            <ArrowDown size="16" color={theme.neutral1} />
-                        </ArrowContainer>
-                    </TraceEvent>
+                        <ArrowDown size="16" color={theme.neutral1}/>
+                    </ArrowContainer>
                 </ArrowWrapper>
             </div>
             <AutoColumn gap="xs">
@@ -306,11 +418,10 @@ export function Swap() {
                     inputToken={inputToken}
                     outputAmount={outputAmount}
                     outputToken={outputToken}
+                    isLastEditInput={isLastEditInput}
                 />
                 <div>
-                    <SwapButton onClick={onSignAndSubmitTransaction} fontWeight={535} $borderRadius="16px">
-                        <Trans>Swap</Trans>
-                    </SwapButton>
+                    {mainButton()}
                 </div>
             </AutoColumn>
         </SwapWrapper>

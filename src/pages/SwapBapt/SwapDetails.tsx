@@ -59,9 +59,10 @@ interface SwapDetailsProps {
     outputAmount: string
     outputToken: number
     tokenPairMetadata: TokenPairMetadataType | undefined
+    isLastEditInput: boolean
 }
 
-export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken, outputAmount, outputToken}: SwapDetailsProps) {
+export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken, outputAmount, outputToken, isLastEditInput}: SwapDetailsProps) {
 
     const totalTax = useMemo(() => {
         let totalFee = 0;
@@ -98,6 +99,27 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
         return value;
     }, [inputAmount]);
 
+    const receive = useMemo(() => {
+        let value = isLastEditInput
+            ? (
+                Number(outputAmount) -
+                (Number(outputAmount) *
+                    (totalTax + 30)) /
+                10000
+            ).toLocaleString(undefined, {
+                maximumSignificantDigits:
+                TOKEN_LIST[outputToken].decimals,
+            })
+            : Number(outputAmount).toLocaleString(
+                undefined,
+                {
+                    maximumSignificantDigits:
+                    TOKEN_LIST[outputToken].decimals,
+                }
+            );
+        return value;
+    }, [outputAmount, totalTax, outputToken, isLastEditInput]);
+
     return (
         <Wrapper>
             <TraceEvent
@@ -124,6 +146,7 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                         <div>{inputTokenReserves + " " + TOKEN_LIST[inputToken].symbol}</div>
                     </RowFixed>
                     <RowFixed gap="xs">
+                        <div><Link to="/token-pair"><ThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>View Pair Info</ThemeButton></Link></div>
                         {/*{!showDetails && isSubmittableTrade(trade) && (
                             <GasEstimateTooltip trade={trade} loading={syncing || loading} />
                         )}
@@ -139,7 +162,7 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                     </RowFixed>
                 </StyledHeaderRow>
             </TraceEvent>
-            <AdvancedSwapDetails fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken}/>
+            <AdvancedSwapDetails fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput}/>
         </Wrapper>
     )
 }
@@ -149,9 +172,12 @@ interface AdvancedSwapDetailsProps {
     taxPercent: number
     taxValue: string
     inputToken: number
+    receive: string
+    outputToken: number
+    isLastEditInput: boolean
 }
 
-function AdvancedSwapDetails({fee, taxPercent, taxValue, inputToken}: AdvancedSwapDetailsProps) {
+function AdvancedSwapDetails({fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput}: AdvancedSwapDetailsProps) {
 
     return (
         <AnimatedDropdown open={true}>
@@ -160,16 +186,8 @@ function AdvancedSwapDetails({fee, taxPercent, taxValue, inputToken}: AdvancedSw
                 <SwapLineItem label={"Fee (0.3%)"} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
                 <SwapLineItem label={`Tax (${taxPercent}%)`} value={`${taxValue} ${TOKEN_LIST[inputToken].symbol}`}/>
                 <SwapLineItem label={"Slippage %"} value={"Auto"}/>
-
-                {/*<SwapLineItem {...lineItemProps} type={SwapLineItemType.PRICE_IMPACT} />
-                <SwapLineItem {...lineItemProps} type={SwapLineItemType.MAX_SLIPPAGE} />
-                <SwapLineItem {...lineItemProps} type={SwapLineItemType.INPUT_TOKEN_FEE_ON_TRANSFER} />
-                <SwapLineItem {...lineItemProps} type={SwapLineItemType.OUTPUT_TOKEN_FEE_ON_TRANSFER} />
-                <SwapLineItem {...lineItemProps} type={SwapLineItemType.NETWORK_COST} />*/}
-{/*
-                <div><Link to="/token-pair"><ThemeButton  size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>View Pair Info</ThemeButton></Link></div>
-*/}
-                {/*<SwapLineItem {...lineItemProps} type={SwapLineItemType.ROUTING_INFO} />*/}
+                <Separator />
+                <SwapLineItem label={"You will receive"} value={`${isLastEditInput ? "~" : ""}${receive} ${TOKEN_LIST[outputToken].symbol}`}/>
             </SwapDetailsWrapper>
         </AnimatedDropdown>
     )
