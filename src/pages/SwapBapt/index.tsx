@@ -126,8 +126,8 @@ export function Swap() {
     const isDark = useIsDarkMode()
     const theme = useTheme()
 
-    const [inputToken, setInputToken] = useState(0);
-    const [outputToken, setOutputToken] = useState(3);
+    const [inputToken, setInputToken] = useState(1);
+    const [outputToken, setOutputToken] = useState(0);
 
     const [inputAmount, setInputAmount] = useState("");
     const [outputAmount, setOutputAmount] = useState("");
