@@ -4,8 +4,8 @@ import {Trans} from "@lingui/macro";
 import styled from "styled-components";
 import {ButtonGray} from "../../components/Button";
 import {AutoColumn} from "../../components/Column";
-import {TOKEN_LIST, TokenType} from "./tokenList";
 import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
+import {TokenType, TOKEN_LIST} from "../../constants/tokenList";
 
 const CurrencySelect = styled(ButtonGray)<{
     visible: boolean

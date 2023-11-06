@@ -13,7 +13,6 @@ import {Trans} from "@lingui/macro";
 import {ButtonLight} from "../../components/Button";
 import {useWallet} from "@aptos-labs/wallet-adapter-react";
 import {AptosClient, Types} from "aptos";
-import {TOKEN_LIST} from "./tokenList";
 import {
     BrowserEvent,
     InterfaceElementName,
@@ -25,9 +24,12 @@ import {
 } from '@uniswap/analytics-events'
 import {ArrowDown} from "react-feather";
 import {ArrowContainer} from "../Swap";
-import {getTokenPairMetadata, calculateRate, getAccountCoinValue, SWAP_ADDRESS} from "./swapUtils";
 import SwapDetails from './SwapDetails';
 import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
+import { calculateRate } from 'utils/sundry';
+import { SWAP_ADDRESS } from 'constants/aptos';
+import {getAccountCoinValue, getTokenPairMetadata} from 'apiRequests';
+import {TOKEN_LIST} from "../../constants/tokenList";
 
 const SwapBg = styled.div`
   position: fixed;

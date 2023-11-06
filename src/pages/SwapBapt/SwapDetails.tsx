@@ -26,8 +26,8 @@ import {
 import SwapLineItem from "./SwapLineItem";
 import {useMemo, useState} from "react";
 import {TokenPairMetadataType} from "./index";
-import {TOKEN_LIST} from "./tokenList";
-import {formatBalance, numberWithCommas } from "./swapUtils";
+import {formatBalance, numberWithCommas } from "utils/sundry";
+import {TOKEN_LIST} from "../../constants/tokenList";
 
 const StyledHeaderRow = styled(RowBetween)<{ disabled: boolean; open: boolean }>`
   padding: 0;
