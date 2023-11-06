@@ -126,6 +126,9 @@ export function Swap() {
     const isDark = useIsDarkMode()
     const theme = useTheme()
 
+    const location = useLocation()
+    const isSwapPage = location.pathname.includes('swap')
+
     const [inputToken, setInputToken] = useState(1);
     const [outputToken, setOutputToken] = useState(0);
 
@@ -372,7 +375,7 @@ export function Swap() {
 
     return (
         <SwapWrapper isDark={isDark}>
-            <SwapBg/>
+            {isSwapPage && <SwapBg/>}
             <SwapHeader/>
             <div style={{ display: 'relative' }}>
                 <SwapSection>

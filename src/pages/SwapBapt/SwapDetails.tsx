@@ -10,7 +10,7 @@ import GasEstimateTooltip from "../../components/swap/GasEstimateTooltip";
 import {useFormatter} from "../../utils/formatNumbers";
 import AnimatedDropdown from "../../components/AnimatedDropdown";
 import {ButtonEmphasis, ButtonSize, ThemeButton} from "../../components/Button";
-import styled from "styled-components";
+import styled, {useTheme} from "styled-components";
 import {ChevronDown} from "react-feather";
 import Column from "../../components/Column";
 import {Link as NativeLink} from "react-router-dom";
@@ -24,7 +24,7 @@ import {
     SwapEventName,
 } from '@uniswap/analytics-events'
 import SwapLineItem from "./SwapLineItem";
-import {useMemo} from "react";
+import {useMemo, useState} from "react";
 import {TokenPairMetadataType} from "./index";
 import {TOKEN_LIST} from "./tokenList";
 import {formatBalance, numberWithCommas } from "./swapUtils";
@@ -63,6 +63,9 @@ interface SwapDetailsProps {
 }
 
 export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken, outputAmount, outputToken, isLastEditInput}: SwapDetailsProps) {
+
+    const [showDetails, setShowDetails] = useState(false);
+    const theme = useTheme()
 
     const totalTax = useMemo(() => {
         let totalFee = 0;
@@ -129,9 +132,9 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
             >
                 <StyledHeaderRow
                     data-testid="swap-details-header-row"
-                    onClick={() => {}}
+                    onClick={() => setShowDetails(!showDetails)}
                     disabled={false}
-                    open={true}
+                    open={showDetails}
                 >
                     <RowFixed>
                         {/*{trade ? (
@@ -149,20 +152,22 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                         <div><Link to="/token-pair"><ThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>View Pair Info</ThemeButton></Link></div>
                         {/*{!showDetails && isSubmittableTrade(trade) && (
                             <GasEstimateTooltip trade={trade} loading={syncing || loading} />
-                        )}
-                        <RotatingArrow stroke={trade ? theme.neutral3 : theme.surface2} open={Boolean(trade && showDetails)} />*/}
+                        )}*/}
                     </RowFixed>
                 </StyledHeaderRow>
                 <StyledHeaderRow data-testid="swap-details-header-row"
-                                 onClick={() => {}}
+                                 onClick={() => setShowDetails(!showDetails)}
                                  disabled={false}
-                                 open={true}>
+                                 open={showDetails}>
                     <RowFixed>
                         <div>{outputTokenReserves + " " + TOKEN_LIST[outputToken].symbol}</div>
                     </RowFixed>
+                    <RowFixed>
+                        <RotatingArrow stroke={theme.neutral3} open={Boolean(showDetails)}/>
+                    </RowFixed>
                 </StyledHeaderRow>
             </TraceEvent>
-            <AdvancedSwapDetails fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput}/>
+            <AdvancedSwapDetails open={showDetails} fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput}/>
         </Wrapper>
     )
 }
@@ -175,12 +180,13 @@ interface AdvancedSwapDetailsProps {
     receive: string
     outputToken: number
     isLastEditInput: boolean
+    open: boolean
 }
 
-function AdvancedSwapDetails({fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput}: AdvancedSwapDetailsProps) {
+function AdvancedSwapDetails({fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput, open}: AdvancedSwapDetailsProps) {
 
     return (
-        <AnimatedDropdown open={true}>
+        <AnimatedDropdown open={open}>
             <SwapDetailsWrapper gap="md" data-testid="advanced-swap-details">
                 <Separator />
                 <SwapLineItem label={"Fee (0.3%)"} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
