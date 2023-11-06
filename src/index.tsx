@@ -3,6 +3,7 @@ import 'inter-ui'
 import 'polyfills'
 import 'tracing'
 import 'connection/eagerlyConnect'
+import './style.css';
 
 import { ApolloProvider } from '@apollo/client'
 import { FeatureFlagsProvider } from 'featureFlags'
