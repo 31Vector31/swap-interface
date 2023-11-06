@@ -29,10 +29,10 @@ import { QueryToken } from 'graphql/data/Token'
 import { getTokenDetailsURL, InterfaceGqlChain, supportedChainIdFromGQLChain } from 'graphql/data/util'
 import { useOnGlobalChainSwitch } from 'hooks/useGlobalChainSwitch'
 import { UNKNOWN_TOKEN_SYMBOL, useTokenFromActiveNetwork } from 'lib/hooks/useCurrency'
-import { Swap } from 'pages/Swap'
-import { useCallback, useMemo, useState, useTransition } from 'react'
+import { Swap } from 'pages/SwapBapt'
+import {useCallback, useEffect, useMemo, useState, useTransition} from 'react'
 import { ArrowLeft } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Field } from 'state/swap/actions'
 import { SwapState } from 'state/swap/reducer'
 import styled from 'styled-components'
@@ -41,6 +41,9 @@ import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
 
 import { OnChangeTimePeriod } from './ChartSection'
 import InvalidTokenDetails from './InvalidTokenDetails'
+import {TokenType} from "../TokenTable/TokenRow";
+import Stake from 'components/Stake'
+import {getTokenImgUrl, getTokensStatistics} from "../../../apiRequests";
 
 const TokenSymbol = styled.span`
   text-transform: uppercase;
@@ -96,12 +99,14 @@ function useRelevantToken(
 type TokenDetailsProps = {
   urlAddress?: string
   inputTokenAddress?: string
-  chain: InterfaceGqlChain
-  tokenQuery: TokenQuery
+  chain?: InterfaceGqlChain
+  tokenQuery?: TokenQuery
   tokenPriceQuery?: TokenPriceQuery
-  onChangeTimePeriod: OnChangeTimePeriod
+  onChangeTimePeriod?: OnChangeTimePeriod
+  tokenAddress?: string
 }
 export default function TokenDetails({
+  tokenAddress,
   urlAddress,
   inputTokenAddress,
   chain,
@@ -109,7 +114,7 @@ export default function TokenDetails({
   tokenPriceQuery,
   onChangeTimePeriod,
 }: TokenDetailsProps) {
-  if (!urlAddress) {
+  /*if (!urlAddress) {
     throw new Error('Invalid token details route: tokenAddress param is undefined')
   }
   const address = useMemo(
@@ -195,57 +200,62 @@ export default function TokenDetails({
   // address will never be undefined if token is defined; address is checked here to appease typechecker
   if (detailedToken === undefined || !address) {
     return <InvalidTokenDetails pageChainId={pageChainId} isInvalidAddress={!address} />
-  }
+  }*/
+
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    getTokensStatistics().then((res: any) => {
+      setToken(res.top_tokens_by_volume.find((el: TokenType) => el.token === tokenAddress));
+    });
+  }, []);
+
   return (
     <Trace
-      page={InterfacePageName.TOKEN_DETAILS_PAGE}
-      properties={{ tokenAddress: address, tokenName: detailedToken?.name }}
-      shouldLogImpression
     >
       <TokenDetailsLayout>
-        {detailedToken && !isPending ? (
+        {token ? (
           <LeftPanel>
-            <BreadcrumbNavLink to={`/tokens/${chain.toLowerCase()}`}>
+            <BreadcrumbNavLink to={`/tokens`}>
               <ArrowLeft data-testid="token-details-return-button" size={14} /> Tokens
             </BreadcrumbNavLink>
             <TokenInfoContainer data-testid="token-info-container">
               <TokenNameCell>
-                <CurrencyLogo currency={detailedToken} size="32px" hideL2Icon={false} />
+                {/*<CurrencyLogo currency={detailedToken} size="32px" hideL2Icon={false} />*/}
+                <img src={getTokenImgUrl(tokenAddress || "")} alt="" width={32} height={32}/>
                 <TokenTitle>
-                  {detailedToken.name ?? <Trans>Name not found</Trans>}
-                  <TokenSymbol>{detailedToken.symbol ?? <Trans>Symbol not found</Trans>}</TokenSymbol>
+                  {tokenAddress ?? <Trans>Name not found</Trans>}
+                  {/*<TokenSymbol>{"symbol" ?? <Trans>Symbol not found</Trans>}</TokenSymbol>*/}
                 </TokenTitle>
               </TokenNameCell>
-              <TokenActions>
+              {/*<TokenActions>
                 <ShareButton currency={detailedToken} />
-              </TokenActions>
+              </TokenActions>*/}
             </TokenInfoContainer>
-            <ChartSection tokenPriceQuery={tokenPriceQuery} onChangeTimePeriod={onChangeTimePeriod} />
+            {/*<ChartSection tokenPriceQuery={tokenPriceQuery} onChangeTimePeriod={onChangeTimePeriod} />*/}
 
             <StatsSection
-              chainId={pageChainId}
-              address={address}
-              TVL={tokenQueryData?.market?.totalValueLocked?.value}
-              volume24H={tokenQueryData?.market?.volume24H?.value}
-              priceHigh52W={tokenQueryData?.market?.priceHigh52W?.value}
-              priceLow52W={tokenQueryData?.market?.priceLow52W?.value}
+              TVL={null}
+              volume24H={token["volume_24h"]}
+              priceHigh52W={null}
+              priceLow52W={null}
             />
             <Hr />
             <AboutSection
-              address={address}
-              chainId={pageChainId}
-              description={tokenQueryData?.project?.description}
-              homepageUrl={tokenQueryData?.project?.homepageUrl}
-              twitterName={tokenQueryData?.project?.twitterName}
+              address={"-"}
+              chainId={1}
+              description={"-"}
+              homepageUrl={"homepageUrl"}
+              twitterName={"twitterName"}
             />
-            {!detailedToken.isNative && <AddressSection address={address} />}
+            {true && <AddressSection address={"-"} />}
           </LeftPanel>
         ) : (
           <TokenDetailsSkeleton />
         )}
 
-        <RightPanel onClick={() => isBlockedToken && setOpenTokenSafetyModal(true)}>
-          <div style={{ pointerEvents: isBlockedToken ? 'none' : 'auto' }}>
+        <RightPanel>
+          {/*<div>
             <Swap
               chainId={pageChainId}
               initialInputCurrencyId={inputTokenAddress}
@@ -255,11 +265,13 @@ export default function TokenDetails({
             />
           </div>
           {tokenWarning && <TokenSafetyMessage tokenAddress={address} warning={tokenWarning} />}
-          {detailedToken && <BalanceSummary token={detailedToken} />}
+          {detailedToken && <BalanceSummary token={detailedToken} />}*/}
+          <Swap/>
+          <Stake/>
         </RightPanel>
-        {detailedToken && <MobileBalanceSummaryFooter token={detailedToken} />}
+        {/*{detailedToken && <MobileBalanceSummaryFooter token={detailedToken} />}*/}
 
-        <TokenSafetyModal
+        {/*<TokenSafetyModal
           isOpen={openTokenSafetyModal || !!continueSwap}
           tokenAddress={address}
           onContinue={() => onResolveSwap(true)}
@@ -268,7 +280,7 @@ export default function TokenDetails({
           }}
           onCancel={() => onResolveSwap(false)}
           showCancel={true}
-        />
+        />*/}
       </TokenDetailsLayout>
     </Trace>
   )

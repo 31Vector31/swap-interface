@@ -13,7 +13,7 @@ import { getNativeTokenDBAddress } from 'utils/nativeTokens'
 export const pageTimePeriodAtom = atomWithStorage<TimePeriod>('tokenDetailsTimePeriod', TimePeriod.DAY)
 
 export default function TokenDetailsPage() {
-  const { tokenAddress, chainName } = useParams<{
+  /*const { tokenAddress, chainName } = useParams<{
     tokenAddress: string
     chainName?: string
   }>()
@@ -56,16 +56,21 @@ export default function TokenDetailsPage() {
     if (tokenPriceQuery) setCurrentPriceQuery(tokenPriceQuery)
   }, [setCurrentPriceQuery, tokenPriceQuery])
 
-  if (!tokenQuery) return <TokenDetailsPageSkeleton />
+  if (!tokenQuery) return <TokenDetailsPageSkeleton />*/
+
+  const { tokenAddress, chainName } = useParams<{
+    tokenAddress: string
+    chainName?: string
+  }>()
 
   return (
-    <TokenDetails
-      urlAddress={tokenAddress}
+    <TokenDetails tokenAddress={tokenAddress}
+      /*urlAddress={tokenAddress}
       chain={chain}
       tokenQuery={tokenQuery}
       tokenPriceQuery={currentPriceQuery}
       onChangeTimePeriod={setTimePeriod}
-      inputTokenAddress={parsedInputTokenAddress}
+      inputTokenAddress={parsedInputTokenAddress}*/
     />
   )
 }

@@ -87,7 +87,7 @@ const Tokens = () => {
             </ThemedText.LargeHeader>
           </MouseoverTooltip>
         </TitleContainer>
-        <FiltersWrapper>
+        {/*<FiltersWrapper>
           <FiltersContainer>
             <NetworkFilter />
             <TimeSelector />
@@ -95,7 +95,7 @@ const Tokens = () => {
           <SearchContainer>
             <SearchBar />
           </SearchContainer>
-        </FiltersWrapper>
+        </FiltersWrapper>*/}
         <TokenTable />
       </ExploreContainer>
     </Trace>

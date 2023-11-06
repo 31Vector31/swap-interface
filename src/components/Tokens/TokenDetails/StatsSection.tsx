@@ -75,16 +75,16 @@ function Stat({
 }
 
 type StatsSectionProps = {
-  chainId: ChainId
-  address: string
+  chainId?: ChainId
+  address?: string
   priceLow52W?: NumericStat
   priceHigh52W?: NumericStat
   TVL?: NumericStat
   volume24H?: NumericStat
 }
 export default function StatsSection(props: StatsSectionProps) {
-  const { chainId, address, priceLow52W, priceHigh52W, TVL, volume24H } = props
-  const { label, infoLink } = getChainInfo(chainId)
+  const { priceLow52W, priceHigh52W, TVL, volume24H } = props
+  /*const { label, infoLink } = getChainInfo(chainId)*/
 
   if (TVL || volume24H || priceLow52W || priceHigh52W) {
     return (
@@ -119,7 +119,8 @@ export default function StatsSection(props: StatsSectionProps) {
       </StatsWrapper>
     )
   } else {
-    return UNSUPPORTED_METADATA_CHAINS.includes(chainId) ? (
+      return <NoData>No stats available</NoData>;
+    /*return UNSUPPORTED_METADATA_CHAINS.includes(chainId) ? (
       <>
         <Header>
           <Trans>Stats</Trans>
@@ -135,6 +136,6 @@ export default function StatsSection(props: StatsSectionProps) {
       </>
     ) : (
       <NoData>No stats available</NoData>
-    )
+    )*/
   }
 }

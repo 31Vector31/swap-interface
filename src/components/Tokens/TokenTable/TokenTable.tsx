@@ -1,13 +1,15 @@
 import { Trans } from '@lingui/macro'
 import { PAGE_SIZE, useTopTokens } from 'graphql/data/TopTokens'
 import { validateUrlChainParam } from 'graphql/data/util'
-import { ReactNode } from 'react'
+import {ReactNode, useEffect, useState} from 'react'
 import { AlertTriangle } from 'react-feather'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { MAX_WIDTH_MEDIA_BREAKPOINT } from '../constants'
 import { HeaderRow, LoadedRow, LoadingRow } from './TokenRow'
+import {TokenPairMetadataType} from "../../../pages/SwapBapt";
+import {getTokensStatistics} from "../../../apiRequests";
 
 const GridContainer = styled.div`
   display: flex;
@@ -75,25 +77,20 @@ function LoadingTokenTable({ rowCount = PAGE_SIZE }: { rowCount?: number }) {
 }
 
 export default function TokenTable() {
-  const chainName = validateUrlChainParam(useParams<{ chainName?: string }>().chainName)
-  const { tokens, tokenSortRank, loadingTokens, sparklines } = useTopTokens(chainName)
+  /*const chainName = validateUrlChainParam(useParams<{ chainName?: string }>().chainName)
+  const { tokens, tokenSortRank, loadingTokens, sparklines } = useTopTokens(chainName)*/
+
+  const [tokens, setTokens] = useState([]);
+
+  useEffect(() => {
+      getTokensStatistics().then((res: any) => {
+          setTokens(res.top_tokens_by_volume);
+      });
+  }, []);
 
   /* loading and error state */
-  if (loadingTokens && !tokens) {
+  if (!tokens) {
     return <LoadingTokenTable rowCount={PAGE_SIZE} />
-  } else if (!tokens) {
-    return (
-      <NoTokensState
-        message={
-          <>
-            <AlertTriangle size={16} />
-            <Trans>An error occurred loading tokens. Please try again.</Trans>
-          </>
-        }
-      />
-    )
-  } else if (tokens?.length === 0) {
-    return <NoTokensState message={<Trans>No tokens found</Trans>} />
   } else {
     return (
       <GridContainer>
@@ -101,14 +98,11 @@ export default function TokenTable() {
         <TokenDataContainer>
           {tokens.map(
             (token, index) =>
-              token?.address && (
+              (
                 <LoadedRow
-                  key={token.address}
-                  tokenListIndex={index}
-                  tokenListLength={tokens.length}
+                  key={index}
                   token={token}
-                  sparklineMap={sparklines}
-                  sortRank={tokenSortRank[token.address]}
+                  sortRank={index+1}
                 />
               )
           )}

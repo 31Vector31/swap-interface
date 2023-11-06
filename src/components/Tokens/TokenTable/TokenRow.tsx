@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import { InterfaceEventName } from '@uniswap/analytics-events'
 import { ParentSize } from '@visx/responsive'
 import { sendAnalyticsEvent } from 'analytics'
+import { getTokenImgUrl } from 'apiRequests'
 import SparklineChart from 'components/Charts/SparklineChart'
 import { ArrowChangeDown } from 'components/Icons/ArrowChangeDown'
 import { ArrowChangeUp } from 'components/Icons/ArrowChangeUp'
@@ -49,7 +50,7 @@ const StyledTokenRow = styled.div<{
   background-color: transparent;
   display: grid;
   font-size: 16px;
-  grid-template-columns: 1fr 7fr 4fr 3fr 3fr 3fr 3fr 5fr;
+  grid-template-columns: 1fr 7fr 4fr 3fr 3fr 3fr 3fr 3fr;
   line-height: 24px;
   max-width: ${MAX_WIDTH_MEDIA_BREAKPOINT};
   min-width: 390px;
@@ -357,6 +358,7 @@ function TokenRow({
   tvl,
   tvs,
   volume,
+  percentChangeVolume,
   sparkLine,
   ...rest
 }: {
@@ -371,6 +373,7 @@ function TokenRow({
   sparkLine?: ReactNode
   tokenInfo: ReactNode
   volume: ReactNode
+  percentChangeVolume: ReactNode
   last?: boolean
   style?: CSSProperties
 }) {
@@ -393,7 +396,10 @@ function TokenRow({
       <VolumeCell data-testid="volume-cell" sortable={header}>
         {volume}
       </VolumeCell>
-      <SparkLineCell>{sparkLine}</SparkLineCell>
+      <PercentChangeCell data-testid="percent-change-cell" sortable={header}>
+        {percentChangeVolume}
+      </PercentChangeCell>
+      {/*<SparkLineCell>{sparkLine}</SparkLineCell>*/}
     </>
   )
   if (header) return <StyledHeaderRow data-testid="header-row">{rowCells}</StyledHeaderRow>
@@ -412,6 +418,7 @@ export function HeaderRow() {
       tvl={<HeaderCell category={TokenSortMethod.TOTAL_VALUE_LOCKED} />}
       tvs={<HeaderCell category={TokenSortMethod.TOTAL_VALUE_STAKED} />}
       volume={<HeaderCell category={TokenSortMethod.VOLUME} />}
+      percentChangeVolume={<HeaderCell category={TokenSortMethod.PERCENT_CHANGE} />}
       sparkLine={null}
     />
   )
@@ -435,108 +442,84 @@ export function LoadingRow(props: { first?: boolean; last?: boolean }) {
       tvl={<LoadingBubble />}
       tvs={<LoadingBubble />}
       volume={<LoadingBubble />}
+      percentChangeVolume={<LoadingBubble />}
       sparkLine={<SparkLineLoadingBubble />}
       {...props}
     />
   )
 }
 
+export type TokenType = {
+  change: number;
+  token: string;
+  volume_24h: number;
+};
+
 interface LoadedRowProps {
-  tokenListIndex: number
-  tokenListLength: number
-  token: NonNullable<TopToken>
-  sparklineMap: SparklineMap
+  token: TokenType
   sortRank: number
 }
 
 /* Loaded State: row component with token information */
-export const LoadedRow = forwardRef((props: LoadedRowProps, ref: ForwardedRef<HTMLDivElement>) => {
-  const { formatFiatPrice, formatNumber, formatPercent } = useFormatter()
+export const LoadedRow = forwardRef(({token, sortRank}: LoadedRowProps, ref: ForwardedRef<HTMLDivElement>) => {
 
-  const { tokenListIndex, tokenListLength, token, sortRank } = props
-  const filterString = useAtomValue(filterStringAtom)
-
-  const filterNetwork = validateUrlChainParam(useParams<{ chainName?: string }>().chainName?.toUpperCase())
-  const chainId = supportedChainIdFromGQLChain(filterNetwork)
-  const timePeriod = useAtomValue(filterTimeAtom)
-  const delta = token.market?.pricePercentChange?.value
-  const formattedDelta = formatPercent(delta)
-
-  const exploreTokenSelectedEventProperties = {
-    chain_id: chainId,
-    token_address: token.address,
-    token_symbol: token.symbol,
-    token_list_index: tokenListIndex,
-    token_list_rank: sortRank,
-    token_list_length: tokenListLength,
-    time_frame: timePeriod,
-    search_token_address_input: filterString,
-  }
-
-  // A simple 0 price indicates the price is not currently available from the api
-  const price = token.market?.price?.value === 0 ? '-' : formatFiatPrice({ price: token.market?.price?.value })
+  let {change, "token": tokenName, volume_24h} = token;
 
   // TODO: currency logo sizing mobile (32px) vs. desktop (24px)
   return (
-    <div ref={ref} data-testid={`token-table-row-${token.address}`}>
+    <div ref={ref}>
       <StyledLink
-        to={getTokenDetailsURL(token)}
-        onClick={() =>
-          sendAnalyticsEvent(InterfaceEventName.EXPLORE_TOKEN_ROW_CLICKED, exploreTokenSelectedEventProperties)
-        }
+        to={"/tokens/mainnet/"+tokenName}
       >
         <TokenRow
           header={false}
           listNumber={sortRank}
           tokenInfo={
             <ClickableName>
-              <QueryTokenLogo token={token} />
+              <img src={getTokenImgUrl(tokenName)} alt="" width={32} height={32}/>
               <TokenInfoCell>
-                <TokenName data-cy="token-name">{token.name}</TokenName>
-                <TokenSymbol>{token.symbol}</TokenSymbol>
+                <TokenName data-cy="token-name">{tokenName}</TokenName>
+                {/*<TokenSymbol>{token.symbol}</TokenSymbol>*/}
               </TokenInfoCell>
             </ClickableName>
           }
           price={
             <ClickableContent>
               <PriceInfoCell>
-                {price}
+                {'-'}
                 <PercentChangeInfoCell>
-                  <DeltaArrow delta={delta} size={14} />
-                  <DeltaText delta={delta}>{formattedDelta}</DeltaText>
+                  <DeltaArrow delta={0} size={14} />
+                  <DeltaText delta={0}>{'-'}</DeltaText>
                 </PercentChangeInfoCell>
               </PriceInfoCell>
             </ClickableContent>
           }
           percentChange={
             <ClickableContent gap={3}>
-              <DeltaArrow delta={delta} />
-              <DeltaText delta={delta}>{formattedDelta}</DeltaText>
+              <DeltaArrow delta={0} />
+              <DeltaText delta={0}>{'-'}</DeltaText>
             </ClickableContent>
           }
           tvl={
             <ClickableContent>
-              {formatNumber({
-                input: token.market?.totalValueLocked?.value,
-                type: NumberType.FiatTokenStats,
-              })}
+              -
             </ClickableContent>
           }
           tvs={<ClickableContent>
-            {formatNumber({
-              input: token.market?.totalValueLocked?.value,
-              type: NumberType.FiatTokenStats,
-            })}
+            -
           </ClickableContent>}
           volume={
             <ClickableContent>
-              {formatNumber({
-                input: token.market?.volume?.value,
-                type: NumberType.FiatTokenStats,
-              })}
+              {volume_24h}
             </ClickableContent>
           }
-          sparkLine={
+          percentChangeVolume={
+            <ClickableContent gap={3}>
+              <DeltaArrow delta={change} />
+              <DeltaText delta={change}>{change}%</DeltaText>
+            </ClickableContent>
+          }
+          /*sparkLine={
             <SparkLine>
               <ParentSize>
                 {({ width, height }) =>
@@ -552,9 +535,9 @@ export const LoadedRow = forwardRef((props: LoadedRowProps, ref: ForwardedRef<HT
                 }
               </ParentSize>
             </SparkLine>
-          }
-          first={tokenListIndex === 0}
-          last={tokenListIndex === tokenListLength - 1}
+          }*/
+          /*first={tokenListIndex === 0}
+          last={tokenListIndex === tokenListLength - 1}*/
         />
       </StyledLink>
     </div>
