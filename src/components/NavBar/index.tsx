@@ -149,7 +149,7 @@ const Navbar = ({ blur }: { blur: boolean }) => {
               {isNftPage && sellPageState !== ProfilePageStateType.LISTING && <Bag />}
               {!isNftPage && (
                 <Box display={{ sm: 'none', lg: 'flex' }}>
-                  <ChainSelector />
+                  {/*<ChainSelector />*/}
                 </Box>
               )}
 
