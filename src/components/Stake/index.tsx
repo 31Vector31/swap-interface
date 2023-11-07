@@ -28,6 +28,7 @@ import SwapDetails from './SwapDetails';
 import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
 import { getAccountCoinValue } from 'apiRequests';
 import {TOKEN_LIST} from "../../constants/tokenList";
+import {SWAP_ADDRESS} from "../../constants/aptos";
 
 const SwapBg = styled.div`
   position: fixed;
@@ -157,6 +158,26 @@ export function Stake() {
         WITH_CREDENTIALS: false,
     });
 
+    const onSignAndSubmitTransaction = async () => {
+        const payload: Types.TransactionPayload = {
+            type: "entry_function_payload",
+            function: `${SWAP_ADDRESS}::router::stake_tokens_in_pool`,
+            type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[1].address],
+            arguments: [Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals], // 1 is in Octas
+        };
+        try {
+            const response = await signAndSubmitTransaction(payload);
+            // if you want to wait for transaction
+            await aptosClient.waitForTransaction(response?.hash || "");
+
+            /*console.log(response?.hash);
+            updatePoolInfo();
+            updateUserStakeInfo();*/
+        } catch (error: any) {
+            console.log("error", error);
+        }
+    };
+
     useEffect(() => {
         if (!connected) {
             setInputBalance(0);
@@ -185,9 +206,9 @@ export function Stake() {
             case !connected:
                 return (<StyledDiv><WalletSelector/></StyledDiv>);
             default:
-                return (<StyledButtonLight>
-                    <Trans>Stake</Trans>
-                </StyledButtonLight>);
+                return (<StyledButtonLight onClick={onSignAndSubmitTransaction}>
+                            <Trans>Stake</Trans>
+                        </StyledButtonLight>);
         }
     }
 
