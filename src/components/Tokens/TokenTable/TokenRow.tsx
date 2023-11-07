@@ -159,9 +159,21 @@ const DataCell = styled(Cell)<{ sortable: boolean }>`
 `
 const TvlCell = styled(DataCell)`
   padding-right: 8px;
-  @media only screen and (max-width: ${MEDIUM_MEDIA_BREAKPOINT}) {
+  @media only screen and (max-width: ${MAX_WIDTH_MEDIA_BREAKPOINT}) {
     display: none;
   }
+  /*@media only screen and (max-width: ${MEDIUM_MEDIA_BREAKPOINT}) {
+    display: none;
+  }*/
+`
+const TvsCell = styled(DataCell)`
+  padding-right: 8px;
+  @media only screen and (max-width: ${MAX_WIDTH_MEDIA_BREAKPOINT}) {
+    display: none;
+  }
+  /*@media only screen and (max-width: ${MEDIUM_MEDIA_BREAKPOINT}) {
+    display: none;
+  }*/
 `
 const NameCell = styled(Cell)`
   justify-content: flex-start;
@@ -267,9 +279,21 @@ const TokenSymbol = styled(Cell)`
 `
 const VolumeCell = styled(DataCell)`
   padding-right: 8px;
+  @media only screen and (max-width: ${SMALL_MEDIA_BREAKPOINT}) {
+    display: none;
+  }
+  /*@media only screen and (max-width: ${LARGE_MEDIA_BREAKPOINT}) {
+    display: none;
+  }*/
+`
+const PercentVolumeCell = styled(DataCell)`
+  padding-right: 8px;
   @media only screen and (max-width: ${LARGE_MEDIA_BREAKPOINT}) {
     display: none;
   }
+  /*@media only screen and (max-width: ${SMALL_MEDIA_BREAKPOINT}) {
+    display: none;
+  }*/
 `
 const SmallLoadingBubble = styled(LoadingBubble)`
   width: 25%;
@@ -390,15 +414,15 @@ function TokenRow({
       <TvlCell data-testid="tvl-cell" sortable={header}>
         {tvl}
       </TvlCell>
-      <TvlCell sortable={header}>
+      <TvsCell sortable={header}>
         {tvs}
-      </TvlCell>
+      </TvsCell>
       <VolumeCell data-testid="volume-cell" sortable={header}>
         {volume}
       </VolumeCell>
-      <PercentChangeCell data-testid="percent-change-cell" sortable={header}>
+      <PercentVolumeCell data-testid="percent-change-cell" sortable={header}>
         {percentChangeVolume}
-      </PercentChangeCell>
+      </PercentVolumeCell>
       {/*<SparkLineCell>{sparkLine}</SparkLineCell>*/}
     </>
   )
@@ -463,6 +487,7 @@ interface LoadedRowProps {
 /* Loaded State: row component with token information */
 export const LoadedRow = forwardRef(({token, sortRank}: LoadedRowProps, ref: ForwardedRef<HTMLDivElement>) => {
 
+  const { formatFiatPrice, formatNumber, formatPercent } = useFormatter();
   let {change, "token": tokenName, volume_24h} = token;
 
   // TODO: currency logo sizing mobile (32px) vs. desktop (24px)
@@ -510,13 +535,16 @@ export const LoadedRow = forwardRef(({token, sortRank}: LoadedRowProps, ref: For
           </ClickableContent>}
           volume={
             <ClickableContent>
-              {volume_24h}
+              {formatNumber({
+                input: volume_24h,
+                type: NumberType.FiatTokenStats,
+              })}
             </ClickableContent>
           }
           percentChangeVolume={
             <ClickableContent gap={3}>
               <DeltaArrow delta={change} />
-              <DeltaText delta={change}>{change}%</DeltaText>
+              <DeltaText delta={change}>{formatPercent(change)}</DeltaText>
             </ClickableContent>
           }
           /*sparkLine={
