@@ -149,7 +149,8 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                         <div>{inputTokenReserves + " " + TOKEN_LIST[inputToken].symbol}</div>
                     </RowFixed>
                     <RowFixed gap="xs">
-                        <div><Link to="/token-pair"><ThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>View Pair Info</ThemeButton></Link></div>
+                        <RotatingArrow stroke={theme.neutral3} open={Boolean(showDetails)}/>
+                        {/*<div><Link to="/token-pair"><ThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>View Pair Info</ThemeButton></Link></div>*/}
                         {/*{!showDetails && isSubmittableTrade(trade) && (
                             <GasEstimateTooltip trade={trade} loading={syncing || loading} />
                         )}*/}
@@ -161,9 +162,6 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                                  open={showDetails}>
                     <RowFixed>
                         <div>{outputTokenReserves + " " + TOKEN_LIST[outputToken].symbol}</div>
-                    </RowFixed>
-                    <RowFixed>
-                        <RotatingArrow stroke={theme.neutral3} open={Boolean(showDetails)}/>
                     </RowFixed>
                 </StyledHeaderRow>
             </TraceEvent>
