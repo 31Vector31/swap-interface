@@ -26,6 +26,7 @@ import { ChevronLeftIcon, NavMagnifyingGlassIcon } from '../../nft/components/ic
 import { NavIcon } from './NavIcon'
 import * as styles from './SearchBar.css'
 import { SearchBarDropdown } from './SearchBarDropdown'
+import {useTokenSearch} from "../../hooks/useTokenSearch";
 
 const KeyShortCut = styled.div`
   background-color: ${({ theme }) => theme.surface3};
@@ -59,14 +60,22 @@ export const SearchBar = () => {
     isOpen && toggleOpen()
   })
 
-  const { data: collections, loading: collectionsAreLoading } = useCollectionSearch(debouncedSearchValue)
+  /*const { data: collections, loading: collectionsAreLoading } = useCollectionSearch(debouncedSearchValue)
 
   const { chainId } = useWeb3React()
   const { data: tokens, loading: tokensAreLoading } = useSearchTokens(debouncedSearchValue, chainId ?? 1)
 
   const isNFTPage = useIsNftPage()
 
-  const [reducedTokens, reducedCollections] = organizeSearchResults(isNFTPage, tokens ?? [], collections ?? [])
+  const [reducedTokens, reducedCollections] = organizeSearchResults(isNFTPage, tokens ?? [], collections ?? [])*/
+
+  /*console.log(debouncedSearchValue);*/
+  const { tokens, loading: tokensAreLoading } = useTokenSearch(debouncedSearchValue);
+  /*console.log(tokens);
+  console.log(tokensAreLoading);*/
+
+  /*console.log(tokens);
+  console.log(reducedTokens);*/
 
   // close dropdown on escape
   useEffect(() => {
@@ -82,7 +91,7 @@ export const SearchBar = () => {
     return () => {
       document.removeEventListener('keydown', escapeKeyDownHandler)
     }
-  }, [isOpen, toggleOpen, collections])
+  }, [isOpen, toggleOpen])
 
   // clear searchbar when changing pages
   useEffect(() => {
@@ -206,11 +215,11 @@ export const SearchBar = () => {
           {isOpen && (
             <SearchBarDropdown
               toggleOpen={toggleOpen}
-              tokens={reducedTokens}
-              collections={reducedCollections}
+              tokens={tokens}
+              collections={[]}
               queryText={debouncedSearchValue}
               hasInput={debouncedSearchValue.length > 0}
-              isLoading={tokensAreLoading || collectionsAreLoading}
+              isLoading={tokensAreLoading}
             />
           )}
         </Column>

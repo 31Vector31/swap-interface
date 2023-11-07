@@ -14,7 +14,7 @@ export function getTokensStatistics() {
     return fetch(`https://api.aptools.io/analytics/v1/tokens_statistics`, init).then((res) => res.json());
 }
 
-export function getTokenImgUrl(name: string) {
+export function getTokenImgUrl(name: string = "") {
     return apiAptools + `/images/${name.toLowerCase().replace(/ /g, '-')}.png`;
 }
 

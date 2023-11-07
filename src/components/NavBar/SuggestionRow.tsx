@@ -23,6 +23,7 @@ import { useFormatter } from 'utils/formatNumbers'
 import { DeltaArrow, DeltaText } from '../Tokens/TokenDetails/Delta'
 import { useAddRecentlySearchedAsset } from './RecentlySearchedAssets'
 import * as styles from './SearchBar.css'
+import {getTokenImgUrl} from "../../apiRequests";
 
 const PriceChangeContainer = styled.div`
   display: flex;
@@ -138,7 +139,7 @@ export const TokenRow = ({ token, isHovered, setHoveredIndex, toggleOpen, index,
     sendAnalyticsEvent(InterfaceEventName.NAVBAR_RESULT_SELECTED, { ...eventProperties })
   }, [addRecentlySearchedAsset, token, toggleOpen, eventProperties])
 
-  const tokenDetailsPath = getTokenDetailsURL(token)
+  const tokenDetailsPath = "/tokens/mainnet/" + token.name;
   // Close the modal on escape
   useEffect(() => {
     const keyDownHandler = (event: KeyboardEvent) => {
@@ -165,13 +166,14 @@ export const TokenRow = ({ token, isHovered, setHoveredIndex, toggleOpen, index,
       style={{ background: isHovered ? vars.color.lightGrayOverlay : 'none' }}
     >
       <Row style={{ width: '65%' }}>
-        <QueryTokenLogo
+        {/*<QueryTokenLogo
           token={token}
           symbol={token.symbol}
           size="36px"
           backupImg={token.project?.logoUrl}
           style={{ marginRight: '8px' }}
-        />
+        />*/}
+        <img style={{ marginRight: '5px' }} src={getTokenImgUrl(token.name)} alt={token.name} width={36} height={36}/>
         <Column className={styles.suggestionPrimaryContainer}>
           <Row gap="4" width="full">
             <Box className={styles.primaryText}>{token.name}</Box>

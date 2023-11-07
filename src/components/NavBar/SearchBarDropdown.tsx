@@ -58,10 +58,10 @@ const SearchBarDropdownSection = ({
 }: SearchBarDropdownSectionProps) => {
   return (
     <Column gap="4" data-testid="searchbar-dropdown">
-      <Row paddingX="16" paddingY="4" gap="8" color="neutral2" className={subheadSmall} style={{ lineHeight: '20px' }}>
+      {/*<Row paddingX="16" paddingY="4" gap="8" color="neutral2" className={subheadSmall} style={{ lineHeight: '20px' }}>
         {headerIcon ? headerIcon : null}
         <Box>{header}</Box>
-      </Row>
+      </Row>*/}
       <Column gap="4">
         {suggestions.map((suggestion, index) =>
           isLoading || !suggestion ? (
@@ -124,6 +124,12 @@ const ChainComingSoonBadge = styled(Badge)`
   margin: 16px 16px 4px;
   width: calc(100% - 32px);
 `
+
+interface Token {
+  change: number
+  token: string
+  volume_24h: number
+}
 
 interface SearchBarDropdownProps {
   toggleOpen: () => void
@@ -295,19 +301,19 @@ function SearchBarDropdownContents({
     <Column gap="20">
       {showCollectionsFirst ? (
         <>
-          {collectionSearchResults}
+          {/*{collectionSearchResults}*/}
           {tokenSearchResults}
         </>
       ) : (
         <>
           {tokenSearchResults}
-          {collectionSearchResults}
+          {/*{collectionSearchResults}*/}
         </>
       )}
     </Column>
-  ) : (
+  ) : ( <></>
     // Recent Searches, Trending Tokens, Trending Collections
-    <Column gap="20">
+    /*<Column gap="20">
       {shortenedHistory.length > 0 && (
         <SearchBarDropdownSection
           hoveredIndex={hoveredIndex}
@@ -356,7 +362,7 @@ function SearchBarDropdownContents({
           isLoading={trendingCollectionsAreLoading}
         />
       )}
-    </Column>
+    </Column>*/
   )
 }
 
