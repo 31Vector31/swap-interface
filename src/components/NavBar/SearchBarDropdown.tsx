@@ -58,10 +58,10 @@ const SearchBarDropdownSection = ({
 }: SearchBarDropdownSectionProps) => {
   return (
     <Column gap="4" data-testid="searchbar-dropdown">
-      {/*<Row paddingX="16" paddingY="4" gap="8" color="neutral2" className={subheadSmall} style={{ lineHeight: '20px' }}>
+      <Row paddingX="16" paddingY="4" gap="8" color="neutral2" className={subheadSmall} style={{ lineHeight: '20px' }}>
         {headerIcon ? headerIcon : null}
         <Box>{header}</Box>
-      </Row>*/}
+      </Row>
       <Column gap="4">
         {suggestions.map((suggestion, index) =>
           isLoading || !suggestion ? (
@@ -204,7 +204,7 @@ function SearchBarDropdownContents({
       : [...Array<GenieCollection>(isNFTPage ? 3 : 2)]
   }, [trendingCollections, isNFTPage, trendingCollectionsAreLoading])
 
-  const { data: trendingTokenData } = useTrendingTokens(useWeb3React().chainId)
+  const { data: trendingTokenData } = useTrendingTokens()
 
   const trendingTokensLength = isTokenPage ? 3 : 2
   const trendingTokens = useMemo(
@@ -311,10 +311,24 @@ function SearchBarDropdownContents({
         </>
       )}
     </Column>
-  ) : ( <></>
+  ) : (
     // Recent Searches, Trending Tokens, Trending Collections
-    /*<Column gap="20">
-      {shortenedHistory.length > 0 && (
+    <Column gap="20">
+      <SearchBarDropdownSection
+          hoveredIndex={hoveredIndex}
+          startingIndex={shortenedHistory.length}
+          setHoveredIndex={setHoveredIndex}
+          toggleOpen={toggleOpen}
+          suggestions={trendingTokens}
+          eventProperties={{
+            suggestion_type: NavBarSearchTypes.TOKEN_TRENDING,
+            ...eventProperties,
+          }}
+          header={<Trans>Popular tokens</Trans>}
+          headerIcon={<TrendingArrow />}
+          isLoading={!trendingTokenData}
+      />
+      {/*{shortenedHistory.length > 0 && (
         <SearchBarDropdownSection
           hoveredIndex={hoveredIndex}
           startingIndex={0}
@@ -345,8 +359,8 @@ function SearchBarDropdownContents({
           headerIcon={<TrendingArrow />}
           isLoading={!trendingTokenData}
         />
-      )}
-      {Boolean(!isTokenPage && !shouldDisableNFTRoutes) && (
+      )}*/}
+      {/*{Boolean(!isTokenPage && !shouldDisableNFTRoutes) && (
         <SearchBarDropdownSection
           hoveredIndex={hoveredIndex}
           startingIndex={shortenedHistory.length + (isNFTPage ? 0 : trendingTokens?.length ?? 0)}
@@ -361,8 +375,8 @@ function SearchBarDropdownContents({
           headerIcon={<TrendingArrow />}
           isLoading={trendingCollectionsAreLoading}
         />
-      )}
-    </Column>*/
+      )}*/}
+    </Column>
   )
 }
 

@@ -32,7 +32,7 @@ export function useTokenSearch(query: string) {
         getTokensStatistics().then((res: any) => {
             const data = res.top_tokens_by_volume;
             const filteredData = data.filter((token: any) => token.token.toLowerCase().includes(search));
-            const results = filteredData.map((token: any) => {
+            const results = filteredData.slice(0, 5).map((token: any) => {
                 return {
                     "__typename": "Token",
                     "id": "VG9rZW46RVRIRVJFVU1fMHhkYWMxN2Y5NThkMmVlNTIzYTIyMDYyMDY5OTQ1OTdjMTNkODMxZWM3",

@@ -1,51 +1,57 @@
-import gql from 'graphql-tag'
-import { useMemo } from 'react'
+import {useEffect, useState} from 'react'
+import {getTokensStatistics} from "../../apiRequests";
 
-import { useTrendingTokensQuery } from './__generated__/types-and-hooks'
-import { chainIdToBackendName, unwrapToken } from './util'
+export default function useTrendingTokens() {
+  const [tokens, setTokens] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-gql`
-  query TrendingTokens($chain: Chain!) {
-    topTokens(pageSize: 4, page: 1, chain: $chain, orderBy: VOLUME) {
-      id
-      decimals
-      name
-      chain
-      standard
-      address
-      symbol
-      market(currency: USD) {
-        id
-        price {
-          id
-          value
-          currency
-        }
-        pricePercentChange(duration: DAY) {
-          id
-          value
-        }
-        volume24H: volume(duration: DAY) {
-          id
-          value
-          currency
-        }
-      }
-      project {
-        id
-        logoUrl
-        safetyLevel
-      }
-    }
-  }
-`
+  useEffect(() => {
+    setLoading(true);
+    getTokensStatistics().then((res: any) => {
+      const data = res.top_tokens_by_volume;
+      const results = data.map((token: any) => {
+        return {
+          "__typename": "Token",
+          "id": "VG9rZW46RVRIRVJFVU1fMHhkYWMxN2Y5NThkMmVlNTIzYTIyMDYyMDY5OTQ1OTdjMTNkODMxZWM3",
+          "decimals": 6,
+          "name": token.token,
+          "chain": "ETHEREUM",
+          "standard": "ERC20",
+          "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+          "symbol": "",
+          "market": {
+            "__typename": "TokenMarket",
+            "id": "VG9rZW5NYXJrZXQ6RVRIRVJFVU1fMHhkYWMxN2Y5NThkMmVlNTIzYTIyMDYyMDY5OTQ1OTdjMTNkODMxZWM3X1VTRA==",
+            "price": {
+              "__typename": "Amount",
+              "id": "QW1vdW50OjFfVVNE",
+              "value": token.volume_24h,
+              "currency": "USD"
+            },
+            "pricePercentChange": {
+              "__typename": "Amount",
+              "id": "QW1vdW50OjIuMjIwNDQ2MDQ5MjUwMzEzZS0xNF9VU0Q=",
+              "value": token.change
+            },
+            "volume24H": {
+              "__typename": "Amount",
+              "id": "QW1vdW50OjE2Mzk3MzMzMy45MDgxMDM5NF9VU0Q=",
+              "value": token.volume_24h,
+              "currency": "USD"
+            }
+          },
+          "project": {
+            "__typename": "TokenProject",
+            "id": "VG9rZW5Qcm9qZWN0OkVUSEVSRVVNXzB4ZGFjMTdmOTU4ZDJlZTUyM2EyMjA2MjA2OTk0NTk3YzEzZDgzMWVjN19UZXRoZXI=",
+            "logoUrl": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png",
+            "safetyLevel": "VERIFIED"
+          }
+        };
+      });
+      setTokens(results);
+    })
+        .finally(() => {setLoading(false)});
+  }, []);
 
-export default function useTrendingTokens(chainId?: number) {
-  const chain = chainIdToBackendName(chainId)
-  const { data, loading } = useTrendingTokensQuery({ variables: { chain } })
-
-  return useMemo(
-    () => ({ data: data?.topTokens?.map((token) => unwrapToken(chainId ?? 1, token)), loading }),
-    [chainId, data?.topTokens, loading]
-  )
+  return {data: tokens, loading};
 }
