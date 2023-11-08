@@ -26,7 +26,7 @@ import {ArrowDown} from "react-feather";
 import {ArrowContainer} from "../Swap";
 import SwapDetails from './SwapDetails';
 import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
-import { calculateRate } from 'utils/sundry';
+import {calculateRate, formatBalance} from 'utils/sundry';
 import { SWAP_ADDRESS } from 'constants/aptos';
 import {getAccountCoinValue, getTokenPairMetadata} from 'apiRequests';
 import {TOKEN_LIST} from "../../constants/tokenList";
@@ -280,7 +280,7 @@ export function Swap() {
                 getAccountCoinValue(account.address, TOKEN_LIST[inputToken].address).then(res => {
                     if(res.data) {
                         const value = res.data.coin.value;
-                        setInputBalance(value);
+                        setInputBalance(formatBalance(value, TOKEN_LIST[inputToken].decimals));
                         setIsInputRegistered(true);
                     }else {
                         setInputBalance(0);
@@ -293,7 +293,7 @@ export function Swap() {
                 getAccountCoinValue(account.address, TOKEN_LIST[outputToken].address).then(res => {
                     if(res.data) {
                         const value = res.data.coin.value;
-                        setOutputBalance(value);
+                        setOutputBalance(formatBalance(value, TOKEN_LIST[outputToken].decimals));
                         setIsOutputRegistered(true);
                     }else {
                         setOutputBalance(0);
