@@ -26,9 +26,10 @@ import {ArrowDown} from "react-feather";
 /*import {ArrowContainer} from "../Swap";*/
 import SwapDetails from './SwapDetails';
 import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
-import { getAccountCoinValue } from 'apiRequests';
+import {getAccountCoinValue, getPoolInfo, getRewardsPoolUserInfo, getTokenPairMetadata} from 'apiRequests';
 import {TOKEN_LIST} from "../../constants/tokenList";
-import {SWAP_ADDRESS} from "../../constants/aptos";
+import {SWAP_ADDRESS, SWAP_ADDRESS2} from "../../constants/aptos";
+import {formatBalance, numberWithCommas} from "../../utils/sundry";
 
 const SwapBg = styled.div`
   position: fixed;
@@ -129,6 +130,21 @@ const StyledButtonLight = styled(ButtonLight)`
   border-radius: 16px;
 `
 
+export type RewardsPoolUserInfoType = {
+    reward_debt_x: string;
+    reward_debt_y: string;
+    staked_tokens: string;
+    withdrawn_x: string;
+    withdrawn_y: string;
+};
+
+export type RewardsPoolInfoType = {
+    dds_x: string;
+    dds_y: string;
+    precision_factor: string;
+    staked_tokens: string;
+};
+
 export const manageStakeSections = ["Stake", "Unstake", "Collect Rewards"];
 
 export function Stake() {
@@ -139,6 +155,9 @@ export function Stake() {
     const [inputToken, setInputToken] = useState(0);
     const [inputAmount, setInputAmount] = useState("");
     const [inputBalance, setInputBalance] = useState(0);
+
+    const [poolInfo, setPoolInfo] = useState<RewardsPoolInfoType>();
+    const [rewardsPoolInfo, setRewardsPoolInfo] = useState<RewardsPoolUserInfoType>();
 
     const {
         connect,
@@ -161,8 +180,9 @@ export function Stake() {
     const onSignAndSubmitTransaction = async () => {
         const payload: Types.TransactionPayload = {
             type: "entry_function_payload",
-            function: `${SWAP_ADDRESS}::router::stake_tokens_in_pool`,
-            type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[1].address],
+            function: `${SWAP_ADDRESS2}::router_v2::stake_tokens_in_pool`,
+            type_arguments: ["0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2", TOKEN_LIST[1].address],
+            /*type_arguments: [TOKEN_LIST[1].address, "0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2"],*/
             arguments: [Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals], // 1 is in Octas
         };
         try {
@@ -172,6 +192,50 @@ export function Stake() {
 
             /*console.log(response?.hash);
             updatePoolInfo();
+            updateUserStakeInfo();*/
+        } catch (error: any) {
+            console.log("error", error);
+        }
+    };
+
+    const onWithdrawStake = async () => {
+        const payload: Types.TransactionPayload = {
+            type: "entry_function_payload",
+            function: `${SWAP_ADDRESS2}::router_v2::withdraw_tokens_from_pool`,
+            type_arguments: ["0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2", TOKEN_LIST[1].address],
+            arguments: [Number(inputAmount) * 10 ** 6], // 1 is in Octas
+        };
+        try {
+            const response = await signAndSubmitTransaction(payload);
+            // if you want to wait for transaction
+            await aptosClient.waitForTransaction(response?.hash || "");
+
+            /*// Update pool info
+            updatePoolInfo();
+
+            // Update user stake info
+            updateUserStakeInfo();*/
+        } catch (error: any) {
+            console.log("error", error);
+        }
+    };
+
+    const claimRewards = async () => {
+        const payload: Types.TransactionPayload = {
+            type: "entry_function_payload",
+            function: `${SWAP_ADDRESS2}::router_v2::claim_rewards_from_pool`,
+            type_arguments: ["0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2", TOKEN_LIST[1].address],
+            arguments: [], // 1 is in Octas
+        };
+        try {
+            const response = await signAndSubmitTransaction(payload);
+            // if you want to wait for transaction
+            await aptosClient.waitForTransaction(response?.hash || "");
+
+           /* // Update pool info
+            updatePoolInfo();
+
+            // Update user stake info
             updateUserStakeInfo();*/
         } catch (error: any) {
             console.log("error", error);
@@ -188,7 +252,7 @@ export function Stake() {
                 getAccountCoinValue(account.address, TOKEN_LIST[inputToken].address).then(res => {
                     if(res.data) {
                         const value = res.data.coin.value;
-                        setInputBalance(value);
+                        setInputBalance(formatBalance(value, TOKEN_LIST[inputToken].decimals));
                     }else {
                         setInputBalance(0);
                     }
@@ -197,48 +261,124 @@ export function Stake() {
         }
     }, [connected, inputToken, account]);
 
+    useEffect(() => {
+        getPoolInfo("0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2", TOKEN_LIST[1].address).then(res => {
+            if(res.data) {
+                const data = res.data;
+                const pool_info: RewardsPoolInfoType = {
+                    dds_x: data.magnified_dividends_per_share_x,
+                    dds_y: data.magnified_dividends_per_share_y,
+                    precision_factor: data.precision_factor,
+                    staked_tokens: data.staked_tokens,
+                };
+
+                setPoolInfo(pool_info);
+            }else {
+                setPoolInfo(undefined);
+            }
+        });
+    }, [inputToken]);
+
+    useEffect(() => {
+        if (connected && account) {
+            if (TOKEN_LIST[inputToken].address) {
+                getRewardsPoolUserInfo(account.address, "0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2", TOKEN_LIST[1].address).then(res => {
+                    if (res.data) {
+                        const data = res.data;
+                        const pool_data: RewardsPoolUserInfoType = {
+                            reward_debt_x: data.reward_debt_x,
+                            reward_debt_y: data.reward_debt_y,
+                            staked_tokens: data.staked_tokens.value,
+                            withdrawn_x: data.withdrawn_x,
+                            withdrawn_y: data.withdrawn_y,
+                        };
+                        setRewardsPoolInfo(pool_data);
+                    } else {
+                        setRewardsPoolInfo(undefined);
+                    }
+                });
+            }
+        }
+    }, [inputToken, account, connected]);
+
+    const pending = useMemo(() => {
+        if(!poolInfo || !rewardsPoolInfo) return {};
+
+        const xValue = Number((
+            (Number(rewardsPoolInfo.staked_tokens) * Number(poolInfo.dds_x)) /
+            Number(poolInfo.precision_factor) -
+            Number(rewardsPoolInfo.reward_debt_x)
+        ).toFixed(0));
+
+        const yValue = Number((
+            (Number(rewardsPoolInfo.staked_tokens) * Number(poolInfo.dds_y)) /
+            Number(poolInfo.precision_factor) -
+            Number(rewardsPoolInfo.reward_debt_y)
+        ).toFixed(0));
+
+        const x = numberWithCommas(formatBalance(xValue, TOKEN_LIST[1].decimals)) || 0 + " " + TOKEN_LIST[1].symbol;
+        const y = numberWithCommas(formatBalance(yValue, TOKEN_LIST[inputToken].decimals)) || 0 + " " + TOKEN_LIST[inputToken].symbol;
+
+        return {x, y};
+    }, [poolInfo, rewardsPoolInfo, inputToken]);
+
     const onInputAmount = useCallback((value: string) => {
         setInputAmount(value);
+    }, []);
+
+    const selectTab = useCallback((value: number) => {
+        if(value === 2) {
+            setInputAmount(pending.y || "0");
+        }else setInputAmount("0");
+        setSelectedTab(value);
     }, []);
 
     const mainButton = () => {
         switch (true) {
             case !connected:
                 return (<StyledDiv><WalletSelector/></StyledDiv>);
-            default:
+            case selectedTab === 0:
                 return (<StyledButtonLight onClick={onSignAndSubmitTransaction}>
                             <Trans>Stake</Trans>
                         </StyledButtonLight>);
+            case selectedTab === 1:
+                return (<StyledButtonLight onClick={onWithdrawStake}>
+                            <Trans>Unstake</Trans>
+                        </StyledButtonLight>);
+            case selectedTab === 2:
+                return (<StyledButtonLight onClick={claimRewards}>
+                            <Trans>Collect rewards</Trans>
+                        </StyledButtonLight>);
         }
+        return (<></>);
     }
 
     return (
         <SwapWrapper isDark={isDark}>
-            <SwapHeader selectedTab={selectedTab} setSelectedTab={setSelectedTab}/>
+            <SwapHeader selectedTab={selectedTab} setSelectedTab={selectTab}/>
             <div style={{ display: 'relative' }}>
                 <SwapSection>
                     <Trace>
                         <SwapCurrencyInputPanel
-                            label={<Trans>You pay</Trans>}
+                            label={<Trans>{selectedTab === 0 ? "You pay" : "You receive"}</Trans>}
                             value={inputAmount}
                             currency={inputToken}
                             onUserInput={onInputAmount}
                             onCurrencySelect={setInputToken}
                             balance={inputBalance}
+                            isNumericalInputDisabled={selectedTab === 2}
                         />
                     </Trace>
                 </SwapSection>
             </div>
             <AutoColumn gap="xs">
                 <div></div>
-                {/*<SwapDetails
-                    tokenPairMetadata={tokenPairMetadata}
-                    inputAmount={inputAmount}
+                <SwapDetails
+                    poolInfo={poolInfo}
+                    rewardsPoolInfo={rewardsPoolInfo}
                     inputToken={inputToken}
-                    outputAmount={outputAmount}
-                    outputToken={outputToken}
-                    isLastEditInput={isLastEditInput}
-                />*/}
+                    pending={pending}
+                />
                 <div>
                     {mainButton()}
                 </div>

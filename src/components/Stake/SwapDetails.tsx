@@ -25,9 +25,10 @@ import {
 } from '@uniswap/analytics-events'
 import SwapLineItem from "./SwapLineItem";
 import {useMemo, useState} from "react";
-import {TokenPairMetadataType} from "./index";
+import {RewardsPoolInfoType, RewardsPoolUserInfoType, TokenPairMetadataType} from "./index";
 import {formatBalance, numberWithCommas } from "utils/sundry";
 import { TOKEN_LIST } from "constants/tokenList";
+import {TokenClient} from "aptos";
 
 const StyledHeaderRow = styled(RowBetween)<{ disabled: boolean; open: boolean }>`
   padding: 0;
@@ -54,74 +55,28 @@ const Link = styled(NativeLink)`
 `
 
 interface SwapDetailsProps {
-    inputAmount: string
+    pending: any
     inputToken: number
-    outputAmount: string
-    outputToken: number
-    tokenPairMetadata: TokenPairMetadataType | undefined
-    isLastEditInput: boolean
+    poolInfo: RewardsPoolInfoType | undefined
+    rewardsPoolInfo: RewardsPoolUserInfoType | undefined
 }
 
-export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken, outputAmount, outputToken, isLastEditInput}: SwapDetailsProps) {
+export default function SwapDetails({poolInfo, inputToken, rewardsPoolInfo, pending}: SwapDetailsProps) {
 
     const [showDetails, setShowDetails] = useState(false);
     const theme = useTheme()
 
-    const totalTax = useMemo(() => {
-        let totalFee = 0;
-        if (tokenPairMetadata) {
-            totalFee =
-                Number(tokenPairMetadata.liquidity_fee) +
-                Number(tokenPairMetadata.rewards_fee) +
-                Number(tokenPairMetadata.team_fee);
-        }
-        return totalFee;
-    }, [tokenPairMetadata]);
-
-    const inputTokenReserves = useMemo(() => {
-        if(!tokenPairMetadata) return 0;
-        let value = numberWithCommas(formatBalance(Number(tokenPairMetadata.balance_x), TOKEN_LIST[inputToken].decimals), TOKEN_LIST[inputToken].decimals);
+    const userStaked = useMemo(() => {
+        if(!rewardsPoolInfo) return 0;
+        const value = numberWithCommas(formatBalance(Number(rewardsPoolInfo.staked_tokens), TOKEN_LIST[inputToken].decimals));
         return value;
-    }, [inputToken, tokenPairMetadata]);
+    }, [rewardsPoolInfo, inputToken]);
 
-    const outputTokenReserves = useMemo(() => {
-        if(!tokenPairMetadata) return 0;
-        let value = numberWithCommas(formatBalance(Number(tokenPairMetadata.balance_y), TOKEN_LIST[outputToken].decimals), TOKEN_LIST[outputToken].decimals);
+    const totalStaked = useMemo(() => {
+        if(!poolInfo) return 0;
+        const value = numberWithCommas(formatBalance(Number(poolInfo.staked_tokens), TOKEN_LIST[inputToken].decimals));
         return value;
-    }, [outputToken, tokenPairMetadata]);
-
-    const fee = useMemo(() => {
-        let value = ((Number(inputAmount) * 3) / 1000).toLocaleString(undefined, {maximumSignificantDigits: 8});
-        return value;
-    }, [inputAmount]);
-
-    const taxPercent = useMemo(() => totalTax/100, [totalTax]);
-
-    const taxValue = useMemo(() => {
-        let value = ((Number(inputAmount) * totalTax) / 10000).toLocaleString(undefined, {maximumSignificantDigits: 8,});
-        return value;
-    }, [inputAmount]);
-
-    const receive = useMemo(() => {
-        let value = isLastEditInput
-            ? (
-                Number(outputAmount) -
-                (Number(outputAmount) *
-                    (totalTax + 30)) /
-                10000
-            ).toLocaleString(undefined, {
-                maximumSignificantDigits:
-                TOKEN_LIST[outputToken].decimals,
-            })
-            : Number(outputAmount).toLocaleString(
-                undefined,
-                {
-                    maximumSignificantDigits:
-                    TOKEN_LIST[outputToken].decimals,
-                }
-            );
-        return value;
-    }, [outputAmount, totalTax, outputToken, isLastEditInput]);
+    }, [poolInfo, inputToken]);
 
     return (
         <Wrapper>
@@ -146,54 +101,55 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                                 <Trans>Fetching best price...</Trans>
                             </ThemedText.DeprecatedMain>
                         ) : null}*/}
-                        <div>{inputTokenReserves + " " + TOKEN_LIST[inputToken].symbol}</div>
+                        <div>{}</div>
                     </RowFixed>
                     <RowFixed gap="xs">
-                        <div><Link to="/token-pair"><ThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>View Pair Info</ThemeButton></Link></div>
+                        <RotatingArrow stroke={theme.neutral3} open={Boolean(showDetails)}/>
                         {/*{!showDetails && isSubmittableTrade(trade) && (
                             <GasEstimateTooltip trade={trade} loading={syncing || loading} />
                         )}*/}
                     </RowFixed>
                 </StyledHeaderRow>
-                <StyledHeaderRow data-testid="swap-details-header-row"
+                {/*<StyledHeaderRow data-testid="swap-details-header-row"
                                  onClick={() => setShowDetails(!showDetails)}
                                  disabled={false}
                                  open={showDetails}>
                     <RowFixed>
-                        <div>{outputTokenReserves + " " + TOKEN_LIST[outputToken].symbol}</div>
+                        <div>{}</div>
                     </RowFixed>
                     <RowFixed>
                         <RotatingArrow stroke={theme.neutral3} open={Boolean(showDetails)}/>
                     </RowFixed>
-                </StyledHeaderRow>
+                </StyledHeaderRow>*/}
             </TraceEvent>
-            <AdvancedSwapDetails open={showDetails} fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput}/>
+            <AdvancedSwapDetails open={showDetails} inputToken={inputToken} userStaked={userStaked} totalStaked={totalStaked} pending={pending}/>
         </Wrapper>
     )
 }
 
 interface AdvancedSwapDetailsProps {
-    fee: string
-    taxPercent: number
-    taxValue: string
     inputToken: number
-    receive: string
-    outputToken: number
-    isLastEditInput: boolean
     open: boolean
+    userStaked: number | string
+    totalStaked: number | string
+    pending: any
 }
 
-function AdvancedSwapDetails({fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput, open}: AdvancedSwapDetailsProps) {
+function AdvancedSwapDetails({inputToken, userStaked, totalStaked, pending, open}: AdvancedSwapDetailsProps) {
 
     return (
         <AnimatedDropdown open={open}>
             <SwapDetailsWrapper gap="md" data-testid="advanced-swap-details">
-                <Separator />
+                <SwapLineItem label={"Your Rewards"} value={`${pending.x || 0}`}/>
+                {/*<SwapLineItem label={"Your Rewards"} value={`${pending.y || 0}`}/>*/}
+                <SwapLineItem label={"Your stake"} value={`${userStaked} ${TOKEN_LIST[inputToken].symbol}`}/>
+                <SwapLineItem label={"Total staked"} value={`${totalStaked} ${TOKEN_LIST[inputToken].symbol}`}/>
+                {/*<Separator />
                 <SwapLineItem label={"Fee (0.3%)"} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
                 <SwapLineItem label={`Tax (${taxPercent}%)`} value={`${taxValue} ${TOKEN_LIST[inputToken].symbol}`}/>
                 <SwapLineItem label={"Slippage %"} value={"Auto"}/>
                 <Separator />
-                <SwapLineItem label={"You will receive"} value={`${isLastEditInput ? "~" : ""}${receive} ${TOKEN_LIST[outputToken].symbol}`}/>
+                <SwapLineItem label={"You will receive"} value={`${isLastEditInput ? "~" : ""}${receive} ${TOKEN_LIST[outputToken].symbol}`}/>*/}
             </SwapDetailsWrapper>
         </AnimatedDropdown>
     )

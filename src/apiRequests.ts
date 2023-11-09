@@ -1,4 +1,4 @@
-import { TESTNET_NODE_URL, SWAP_ADDRESS } from "constants/aptos";
+import {TESTNET_NODE_URL, SWAP_ADDRESS, SWAP_ADDRESS2} from "constants/aptos";
 
 export const apiAptools = "https://api.aptools.io";
 
@@ -29,4 +29,12 @@ export function getTokenPairMetadata(inputToken: string, outputToken: string) {
 
 export function getAccountCoinValue(account: string, coin: string) {
     return fetch(`${TESTNET_NODE_URL}/accounts/${account}/resource/0x1::coin::CoinStore<${coin}>`).then((res) => res.json());
+}
+
+export function getPoolInfo(inputToken: string, outputToken: string) {
+    return fetch(`${TESTNET_NODE_URL}/accounts/${SWAP_ADDRESS2}/resource/${SWAP_ADDRESS2}::swap_v2::TokenPairRewardsPool<${outputToken}, ${inputToken}>`).then((res) => res.json());
+}
+
+export function getRewardsPoolUserInfo(account: string, inputToken: string, outputToken: string) {
+    return  fetch(`${TESTNET_NODE_URL}/accounts/${account}/resource/${SWAP_ADDRESS2}::swap_v2::RewardsPoolUserInfo<${outputToken}, ${inputToken}, ${outputToken}>`).then((res) => res.json());
 }

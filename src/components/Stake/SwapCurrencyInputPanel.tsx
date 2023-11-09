@@ -126,9 +126,10 @@ interface SwapCurrencyInputPanelProps {
     onUserInput: (value: string) => void
     onCurrencySelect: (value: number) => void
     balance: number
+    isNumericalInputDisabled: boolean
 }
 
-const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrencySelect, balance}: SwapCurrencyInputPanelProps) => {
+const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrencySelect, balance, isNumericalInputDisabled}: SwapCurrencyInputPanelProps) => {
 
     const theme = useTheme()
     const {account} = useWallet();
@@ -143,6 +144,7 @@ const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrency
                             className="token-amount-input"
                             value={value}
                             onUserInput={onUserInput}
+                            disabled={isNumericalInputDisabled}
                         />
                     </div>
                     <CurrencySelectButton

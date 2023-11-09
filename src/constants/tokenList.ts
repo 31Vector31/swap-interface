@@ -79,11 +79,11 @@ export const TOKEN_LIST: TokenType[] = [
         decimals: 8,
     },
     {
-        name: "BAPT V1",
-        symbol: "BAPTv1",
+        name: "BAPT V2",
+        symbol: "BAPTv2",
         iconSrc: "/external_media/baptlabs-mini.png",
         address:
-            "0xb73a7b82af68fc1ba6e123688b95adec1fec0bcfc256b5d3a43de227331a7abd::baptlabs::BaptLabs",
+            "0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2",
         decimals: 8,
     },
     {
