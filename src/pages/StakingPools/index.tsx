@@ -20,11 +20,39 @@ const TitleContainer = styled.div`
 const BasicContainer = styled.div`
   border: 1px solid ${({ theme }) => theme.surface3};
   border-radius: 12px;
-  padding: 12px 16px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+`
+
+const TableHeader = styled.div`
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-bottom: 1px solid #FFFFFF12;
+  color: #9B9B9B;
+  font-size: 14px;
+  height: 48px;
+  line-height: 16px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  
+  & > div:nth-child(1) {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    min-width: 32px;
+  }
+
+  & > div:nth-child(2) {
+    flex: 10;
+  }
+
+  & > div:nth-child(3) {
+    flex: 1;
+  }
 `
 
 const rewardsPoolList = [
@@ -64,8 +92,13 @@ const StakingPools = () => {
                 </ThemedText.LargeHeader>
             </TitleContainer>
             <BasicContainer>
+                <TableHeader>
+                    <div>#</div>
+                    <div>Pool name</div>
+                    <div></div>
+                </TableHeader>
                 {rewardsPoolList && rewardsPoolList.map(
-                    (pool: any, index) => <ItemPool pool={pool} key={index}/>
+                    (pool: any, index) => <ItemPool pool={pool} key={index} index={index + 1}/>
                 )}
             </BasicContainer>
         </ExploreContainer>
