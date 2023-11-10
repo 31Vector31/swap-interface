@@ -26,6 +26,7 @@ import ChainSelectorRow from './ChainSelectorRow'
 import { NavDropdown } from './NavDropdown'
 
 const NETWORK_SELECTOR_CHAINS = [...L1_CHAIN_IDS, ...L2_CHAIN_IDS]
+import {networks} from "../../constants/aptos";
 
 interface ChainSelectorProps {
   leftAlign?: boolean
@@ -100,19 +101,22 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
 
   const isSupported = !!info
 
+  const [selectedNetwork, setSelectedNetwork] = useState(networks[1]);
+
   const dropdown = (
     <NavDropdown top="56" left={leftAlign ? '0' : 'auto'} right={leftAlign ? 'auto' : '0'} ref={modalRef}>
       <Column paddingX="8" data-testid="chain-selector-options">
-        {supportedChains.map((selectorChain) => (
+        {networks.map((network: string) => (
           <ChainSelectorRow
-            disabled={!walletSupportsChain.includes(selectorChain)}
-            onSelectChain={onSelectChain}
-            targetChain={selectorChain}
-            key={selectorChain}
-            isPending={selectorChain === pendingChainId}
+            disabled={false}
+            onSelectChain={setSelectedNetwork}
+            targetChain={network}
+            key={network}
+            isPending={false}
+            isActive={selectedNetwork == network}
           />
         ))}
-        {unsupportedChains.map((selectorChain) => (
+        {/*{unsupportedChains.map((selectorChain) => (
           <ChainSelectorRow
             disabled
             onSelectChain={() => undefined}
@@ -120,7 +124,7 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
             key={selectorChain}
             isPending={false}
           />
-        ))}
+        ))}*/}
       </Column>
     </NavDropdown>
   )
@@ -142,11 +146,13 @@ export const ChainSelector = ({ leftAlign }: ChainSelectorProps) => {
           background={isOpen ? 'accent2' : 'none'}
           onClick={() => setIsOpen(!isOpen)}
         >
-          {!isSupported ? (
+          {/*{!isSupported ? (
             <AlertTriangle size={20} color={theme.neutral2} />
           ) : (
             <img src={info.logoUrl} alt={info.label} className={styles.Image} data-testid="chain-selector-logo" />
-          )}
+          )}*/}
+          <img src={"https://api.aptools.io/images/apt.png"} alt={"APT"} className={styles.Image}/>
+          {selectedNetwork}
           {isOpen ? <ChevronUp {...chevronProps} /> : <ChevronDown {...chevronProps} />}
         </Row>
       </MouseoverTooltip>
