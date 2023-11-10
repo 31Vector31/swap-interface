@@ -2,6 +2,8 @@ import {ThemedText} from "../../theme/components";
 import {Trans} from "@lingui/macro";
 import {RowBetween, RowFixed} from "../../components/Row";
 import styled from "styled-components";
+import SettingsTab from "components/Settings";
+import { Percent } from '@uniswap/sdk-core'
 
 const StyledSwapHeader = styled(RowBetween)`
   margin-bottom: 10px;
@@ -21,9 +23,9 @@ export default function SwapHeader() {
                     <Trans>Swap</Trans>
                 </ThemedText.SubHeader>
             </HeaderButtonContainer>
-            {/*<RowFixed>
-                <SettingsTab autoSlippage={autoSlippage} chainId={chainId} trade={trade} />
-            </RowFixed>*/}
+            <RowFixed>
+                <SettingsTab autoSlippage={new Percent(5, 1000)}/>
+            </RowFixed>
         </StyledSwapHeader>
     )
 }

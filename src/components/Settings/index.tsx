@@ -137,7 +137,7 @@ export default function SettingsTab({
           <ExpandColumn $padTop={showRoutingSettings}>
             {showRoutingSettings && <Divider />}
             <MaxSlippageSettings autoSlippage={autoSlippage} />
-            {showDeadlineSettings && (
+            {true && (
               <>
                 <Divider />
                 <TransactionDeadlineSettings />
@@ -152,7 +152,7 @@ export default function SettingsTab({
 
   return (
     <Menu ref={node}>
-      <MenuButton disabled={!isChainSupported || chainId !== connectedChainId} isActive={isOpen} onClick={toggleMenu} />
+      <MenuButton disabled={false} isActive={isOpen} onClick={toggleMenu} />
       {isOpenDesktop && <MenuFlyout>{Settings}</MenuFlyout>}
       {isOpenMobile && (
         <Portal>
