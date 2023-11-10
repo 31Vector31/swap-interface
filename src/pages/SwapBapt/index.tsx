@@ -30,6 +30,7 @@ import {calculateRate, formatBalance} from 'utils/sundry';
 import { SWAP_ADDRESS } from 'constants/aptos';
 import {getAccountCoinValue, getTokenPairMetadata} from 'apiRequests';
 import {TOKEN_LIST} from "../../constants/tokenList";
+import {useAccountDrawer} from "../../components/AccountDrawer";
 
 const SwapBg = styled.div`
   position: fixed;
@@ -130,6 +131,8 @@ export function Swap() {
 
     const location = useLocation()
     const isSwapPage = location.pathname.includes('swap')
+
+    const [, toggleAccountDrawer] = useAccountDrawer()
 
     const [inputToken, setInputToken] = useState(1);
     const [outputToken, setOutputToken] = useState(0);
@@ -351,7 +354,9 @@ export function Swap() {
     const mainButton = () => {
         switch (true) {
             case !connected:
-                return <StyledDiv><WalletSelector/></StyledDiv>;
+                return <StyledButtonLight onClick={()=>toggleAccountDrawer()}>
+                            <Trans>Connect wallet</Trans>
+                        </StyledButtonLight>;
             case !tokenPairMetadata:
                 return (<StyledButtonLight onClick={()=>{}} disabled={true}>
                             <Trans>Non-existent pair</Trans>

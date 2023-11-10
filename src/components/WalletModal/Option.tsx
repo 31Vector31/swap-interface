@@ -1,13 +1,22 @@
+import {
+  isRedirectable,
+  useWallet,
+  Wallet,
+  WalletName,
+  WalletReadyState,
+} from "@aptos-labs/wallet-adapter-react";
 import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
+import {useWeb3React, Web3ReactHooks} from '@web3-react/core'
 import { TraceEvent } from 'analytics'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import Loader from 'components/Icons/LoadingSpinner'
 import { ActivationStatus, useActivationState } from 'connection/activate'
-import { Connection } from 'connection/types'
+import {Connection, ConnectionType} from 'connection/types'
 import styled from 'styled-components'
 import { useIsDarkMode } from 'theme/components/ThemeToggle'
 import { flexColumnNoWrap, flexRowNoWrap } from 'theme/styles'
+import {Connector} from "@web3-react/types";
+import {ChainId} from "@uniswap/sdk-core";
 
 const OptionCardLeft = styled.div`
   ${flexColumnNoWrap};
@@ -76,37 +85,46 @@ const Wrapper = styled.div<{ disabled: boolean }>`
 `
 
 interface OptionProps {
-  connection: Connection
+  wallet: Wallet
 }
-export default function Option({ connection }: OptionProps) {
-  const { activationState, tryActivation } = useActivationState()
+export default function Option({ wallet }: OptionProps) {
+  /*const { activationState, tryActivation } = useActivationState()
   const toggleAccountDrawer = useToggleAccountDrawer()
   const { chainId } = useWeb3React()
   const activate = () => tryActivation(connection, toggleAccountDrawer, chainId)
 
   const isSomeOptionPending = activationState.status === ActivationStatus.PENDING
   const isCurrentOptionPending = isSomeOptionPending && activationState.connection.type === connection.type
-  const isDarkMode = useIsDarkMode()
+  const isDarkMode = useIsDarkMode()*/
+
+  const isSomeOptionPending = false;
+  const isCurrentOptionPending = false;
+
+  const { connect, disconnect, account, wallets, connected } = useWallet();
+
+  const {icon, name, readyState, url} = wallet;
+  const isWalletReady = readyState === WalletReadyState.Installed || readyState === WalletReadyState.Loadable;
+
+  const onWalletSelected = (wallet: WalletName) => {
+    connect(wallet);
+  };
 
   return (
     <Wrapper disabled={isSomeOptionPending}>
       <TraceEvent
         events={[BrowserEvent.onClick]}
         name={InterfaceEventName.WALLET_SELECTED}
-        properties={{ wallet_type: connection.getName() }}
-        element={InterfaceElementName.WALLET_TYPE_OPTION}
       >
         <OptionCardClickable
           disabled={isSomeOptionPending}
-          onClick={activate}
+          onClick={isWalletReady ? () => onWalletSelected(wallet.name) : () => window.open(url)}
           selected={isCurrentOptionPending}
-          data-testid={`wallet-option-${connection.type}`}
         >
           <OptionCardLeft>
             <IconWrapper>
-              <img src={connection.getIcon?.(isDarkMode)} alt={connection.getName()} />
+              <img src={icon} alt={name} />
             </IconWrapper>
-            <HeaderText>{connection.getName()}</HeaderText>
+            <HeaderText>{isWalletReady ? name : `Install ${name}`}</HeaderText>
           </OptionCardLeft>
           {isCurrentOptionPending && <Loader />}
         </OptionCardClickable>

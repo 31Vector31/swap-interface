@@ -26,6 +26,8 @@ import { shortenAddress } from 'utils'
 import { ButtonSecondary } from '../Button'
 import StatusIcon from '../Identicon/StatusIcon'
 import { RowBetween } from '../Row'
+import {useWallet} from "@aptos-labs/wallet-adapter-react";
+import { truncateAddress } from 'utils/sundry'
 
 // https://stackoverflow.com/a/31617326
 const FULL_BORDER_RADIUS = 9999
@@ -146,7 +148,7 @@ function Web3StatusInner() {
 
   const [, toggleAccountDrawer] = useAccountDrawer()
   const handleWalletDropdownClick = useCallback(() => {
-    sendAnalyticsEvent(InterfaceEventName.ACCOUNT_DROPDOWN_BUTTON_CLICKED)
+    /*sendAnalyticsEvent(InterfaceEventName.ACCOUNT_DROPDOWN_BUTTON_CLICKED)*/
     toggleAccountDrawer()
   }, [toggleAccountDrawer])
   const isClaimAvailable = useIsNftClaimAvailable((state) => state.isClaimAvailable)
@@ -182,7 +184,7 @@ function Web3StatusInner() {
     }
   }, [ENSName, account, connection.type])
 
-  if (!isConnectionInitialized) {
+  /*if (!isConnectionInitialized) {
     return (
       <Web3StatusConnecting disabled={!isConnectionInitializing} onClick={handleWalletDropdownClick}>
         <IconWrapper size={24}>
@@ -193,9 +195,11 @@ function Web3StatusInner() {
         </AddressAndChevronContainer>
       </Web3StatusConnecting>
     )
-  }
+  }*/
 
-  if (account) {
+  const { account: accountAptos } = useWallet();
+
+  if (accountAptos) {
     return (
       <TraceEvent
         events={[BrowserEvent.onClick]}
@@ -203,13 +207,13 @@ function Web3StatusInner() {
         properties={{ type: 'open' }}
       >
         <Web3StatusConnected
-          disabled={Boolean(switchingChain)}
+          disabled={false}
           data-testid="web3-status-connected"
           onClick={handleWalletDropdownClick}
-          pending={hasPendingActivity}
-          isClaimAvailable={isClaimAvailable}
+          pending={false}
+          isClaimAvailable={false}
         >
-          {!hasPendingActivity && (
+          {/*{!hasPendingActivity && (
             <StatusIcon account={account} size={24} connection={connection} showMiniIcons={false} />
           )}
           {hasPendingActivity ? (
@@ -223,7 +227,10 @@ function Web3StatusInner() {
             <AddressAndChevronContainer>
               <Text>{ENSName ?? shortenAddress(account)}</Text>
             </AddressAndChevronContainer>
-          )}
+          )}*/}
+          <AddressAndChevronContainer>
+            <Text>{accountAptos?.ansName ? accountAptos?.ansName : truncateAddress(accountAptos?.address)}</Text>
+          </AddressAndChevronContainer>
         </Web3StatusConnected>
       </TraceEvent>
     )

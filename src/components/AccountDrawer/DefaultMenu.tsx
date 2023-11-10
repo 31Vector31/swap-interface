@@ -8,6 +8,7 @@ import AuthenticatedHeader from './AuthenticatedHeader'
 import LanguageMenu from './LanguageMenu'
 import LocalCurrencyMenu from './LocalCurrencyMenu'
 import SettingsMenu from './SettingsMenu'
+import {useWallet} from "@aptos-labs/wallet-adapter-react";
 
 const DefaultMenuWrap = styled(Column)`
   width: 100%;
@@ -23,7 +24,8 @@ enum MenuState {
 
 function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
   const { account } = useWeb3React()
-  const isAuthenticated = !!account
+  const { account: accountAptos } = useWallet();
+  const isAuthenticated = !!accountAptos
 
   const [menu, setMenu] = useState<MenuState>(MenuState.DEFAULT)
   const openSettings = useCallback(() => setMenu(MenuState.SETTINGS), [])
@@ -46,7 +48,7 @@ function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
     switch (menu) {
       case MenuState.DEFAULT:
         return isAuthenticated ? (
-          <AuthenticatedHeader account={account} openSettings={openSettings} />
+          <AuthenticatedHeader account={""} openSettings={openSettings} />
         ) : (
           <WalletModal openSettings={openSettings} />
         )

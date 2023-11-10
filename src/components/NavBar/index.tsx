@@ -153,8 +153,8 @@ const Navbar = ({ blur }: { blur: boolean }) => {
                 </Box>
               )}
 
-              {/*<Web3Status />*/}
-              <WalletSelector />
+              <Web3Status />
+              {/*<WalletSelector />*/}
             </Row>
           </Box>
         </Box>

@@ -75,7 +75,7 @@ const Pages: Array<Page> = [
     component: Tokens,
     loggingElementName: InterfaceElementName.MINI_PORTFOLIO_TOKENS_TAB,
   },
-  {
+  /*{
     title: <Trans>NFTs</Trans>,
     key: 'nfts',
     component: NFTs,
@@ -92,7 +92,7 @@ const Pages: Array<Page> = [
     key: 'activity',
     component: ActivityTab,
     loggingElementName: InterfaceElementName.MINI_PORTFOLIO_ACTIVITY_TAB,
-  },
+  },*/
 ]
 
 export default function MiniPortfolio({ account }: { account: string }) {

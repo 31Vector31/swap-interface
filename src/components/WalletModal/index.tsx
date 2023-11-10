@@ -15,6 +15,7 @@ import { flexColumnNoWrap } from 'theme/styles'
 import ConnectionErrorView from './ConnectionErrorView'
 import Option from './Option'
 import PrivacyPolicyNotice from './PrivacyPolicyNotice'
+import {useWallet} from "@aptos-labs/wallet-adapter-react";
 
 const Wrapper = styled.div`
   ${flexColumnNoWrap};
@@ -39,7 +40,7 @@ const PrivacyPolicyWrapper = styled.div`
 `
 
 export default function WalletModal({ openSettings }: { openSettings: () => void }) {
-  const { connector, chainId } = useWeb3React()
+  /*const { connector, chainId } = useWeb3React()
 
   const { activationState } = useActivationState()
   const fallbackProviderEnabled = useFallbackProviderEnabled()
@@ -52,7 +53,9 @@ export default function WalletModal({ openSettings }: { openSettings: () => void
         deprecatedNetworkConnection.connector.activate(chainId)
       }
     }
-  }, [chainId, connector, fallbackProviderEnabled])
+  }, [chainId, connector, fallbackProviderEnabled])*/
+
+  const { wallets } = useWallet();
 
   return (
     <Wrapper data-testid="wallet-modal">
@@ -60,22 +63,30 @@ export default function WalletModal({ openSettings }: { openSettings: () => void
         <ThemedText.SubHeader>Connect a wallet</ThemedText.SubHeader>
         <IconButton Icon={Settings} onClick={openSettings} data-testid="wallet-settings" />
       </AutoRow>
-      {activationState.status === ActivationStatus.ERROR ? (
+      <AutoColumn gap="16px">
+        <OptionGrid data-testid="option-grid">
+          {wallets.map((wallet) => (
+              <Option key={wallet.name} wallet={wallet} />
+          ))}
+        </OptionGrid>
+        <PrivacyPolicyWrapper>
+          <PrivacyPolicyNotice />
+        </PrivacyPolicyWrapper>
+      </AutoColumn>
+      {/*{activationState.status === ActivationStatus.ERROR ? (
         <ConnectionErrorView />
       ) : (
         <AutoColumn gap="16px">
           <OptionGrid data-testid="option-grid">
-            {connections
-              .filter((connection) => connection.shouldDisplay())
-              .map((connection) => (
-                <Option key={connection.getName()} connection={connection} />
-              ))}
+            {wallets.map((wallet) => (
+                    <Option key={wallet.name} wallet={wallet} />
+                ))}
           </OptionGrid>
           <PrivacyPolicyWrapper>
             <PrivacyPolicyNotice />
           </PrivacyPolicyWrapper>
         </AutoColumn>
-      )}
+      )}*/}
     </Wrapper>
   )
 }

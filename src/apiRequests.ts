@@ -14,6 +14,17 @@ export function getTokensStatistics() {
     return fetch(`https://api.aptools.io/analytics/v1/tokens_statistics`, init).then((res) => res.json());
 }
 
+export function getAccountTokens(account: string) {
+    const body = {
+        account,
+        currentPage: 1,
+        order: "desc",
+        orderBy: "balance",
+        pageSize: 10,
+    };
+    return fetch(`https://api.aptools.io/analytics/v1/account_coins`, {body: JSON.stringify(body), ...init, method: "POST"}).then((res) => res.json());
+}
+
 export function getTokenImgUrl(name: string = "") {
     return apiAptools + `/images/${name.toLowerCase().replace(/ /g, '-')}.png`;
 }

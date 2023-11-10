@@ -19,6 +19,8 @@ import { hideSmallBalancesAtom } from '../../SmallBalanceToggle'
 import { ExpandoRow } from '../ExpandoRow'
 import { PortfolioLogo } from '../PortfolioLogo'
 import PortfolioRow, { PortfolioSkeleton, PortfolioTabWrapper } from '../PortfolioRow'
+import {useAccountTokens} from "../../../../hooks/useAccountTokens";
+import {getTokenImgUrl} from "../../../../apiRequests";
 
 export default function Tokens({ account }: { account: string }) {
   const toggleWalletDrawer = useToggleAccountDrawer()
@@ -34,11 +36,14 @@ export default function Tokens({ account }: { account: string }) {
     [hideSmallBalances, tokenBalances]
   )
 
-  if (!data) {
+
+  const {tokens, loading} = useAccountTokens("0x20c470a569df5159b02253a79bc3a123b389140a528e9fbfdbe065bfe58e30dd");
+
+  if (loading) {
     return <PortfolioSkeleton />
   }
 
-  if (tokenBalances?.length === 0) {
+  if (tokens.length === 0) {
     // TODO: consider launching moonpay here instead of just closing the drawer
     return <EmptyWalletModule type="token" onNavigateClick={toggleWalletDrawer} />
   }
@@ -47,16 +52,16 @@ export default function Tokens({ account }: { account: string }) {
 
   return (
     <PortfolioTabWrapper>
-      {visibleTokens.map(
-        (tokenBalance) =>
-          tokenBalance.token && <TokenRow key={tokenBalance.id} {...tokenBalance} token={tokenBalance.token} />
+      {tokens.map(
+        (token: any, index: any) =>
+            token && <TokenRow key={index} token={token} />
       )}
-      <ExpandoRow isExpanded={showHiddenTokens} toggle={toggleHiddenTokens} numItems={hiddenTokens.length}>
+      {/*<ExpandoRow isExpanded={showHiddenTokens} toggle={toggleHiddenTokens} numItems={hiddenTokens.length}>
         {hiddenTokens.map(
           (tokenBalance) =>
             tokenBalance.token && <TokenRow key={tokenBalance.id} {...tokenBalance} token={tokenBalance.token} />
         )}
-      </ExpandoRow>
+      </ExpandoRow>*/}
     </PortfolioTabWrapper>
   )
 }
@@ -70,8 +75,10 @@ const TokenNameText = styled(ThemedText.SubHeader)`
 
 type PortfolioToken = NonNullable<TokenBalance['token']>
 
-function TokenRow({ token, quantity, denominatedValue, tokenProjectMarket }: TokenBalance & { token: PortfolioToken }) {
-  const { formatPercent } = useFormatter()
+function TokenRow({ token }: { token: any }) {
+  const {coin, coin_name, balance, balanceUSD} = token;
+  const { formatNumber } = useFormatter()
+  /*const { formatPercent } = useFormatter()
   const percentChange = tokenProjectMarket?.pricePercentChange?.value ?? 0
 
   const navigate = useNavigate()
@@ -89,40 +96,40 @@ function TokenRow({ token, quantity, denominatedValue, tokenProjectMarket }: Tok
       errorMessage: 'Token from unsupported chain received from Mini Portfolio Token Balance Query',
     })
     return null
-  }
+  }*/
   return (
     <TraceEvent
       events={[BrowserEvent.onClick]}
       name={SharedEventName.ELEMENT_CLICKED}
       element={InterfaceElementName.MINI_PORTFOLIO_TOKEN_ROW}
-      properties={{ chain_id: currency.chainId, token_name: token?.name, address: token?.address }}
     >
       <PortfolioRow
-        left={<PortfolioLogo chainId={currency.chainId} currencies={[currency]} size="40px" />}
-        title={<TokenNameText>{token?.name}</TokenNameText>}
+        /*left={<PortfolioLogo chainId={currency.chainId} currencies={[currency]} size="40px" />}*/
+          left={<img src={getTokenImgUrl(coin)} width={40} height={40} alt={coin_name}/>}
+        title={<TokenNameText>{coin_name}</TokenNameText>}
         descriptor={
           <TokenBalanceText>
             {formatNumber({
-              input: quantity,
+              input: balance,
               type: NumberType.TokenNonTx,
             })}{' '}
-            {token?.symbol}
+            {coin}
           </TokenBalanceText>
         }
-        onClick={navigateToTokenDetails}
+        onClick={()=>{}}
         right={
-          denominatedValue && (
+            balanceUSD !== "0.00" && (
             <>
               <ThemedText.SubHeader>
                 {formatNumber({
-                  input: denominatedValue?.value,
+                  input: balanceUSD,
                   type: NumberType.PortfolioBalance,
                 })}
               </ThemedText.SubHeader>
-              <Row justify="flex-end">
+              {/*<Row justify="flex-end">
                 <DeltaArrow delta={percentChange} />
                 <ThemedText.BodySecondary>{formatPercent(percentChange)}</ThemedText.BodySecondary>
-              </Row>
+              </Row>*/}
             </>
           )
         }

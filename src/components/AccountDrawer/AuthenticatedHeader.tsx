@@ -37,6 +37,11 @@ import { useToggleAccountDrawer } from '.'
 import IconButton, { IconHoverText, IconWithConfirmTextButton } from './IconButton'
 import MiniPortfolio from './MiniPortfolio'
 import { portfolioFadeInAnimation } from './MiniPortfolio/PortfolioRow'
+import {useWallet} from "@aptos-labs/wallet-adapter-react";
+import {truncateAddress} from "../../utils/sundry";
+import {useTokenBalance} from "../../hooks/useTokenBalance";
+import {APT_TOKEN_ADDRESS} from "../../constants/aptos";
+import {TOKEN_LIST} from "../../constants/tokenList";
 
 const AuthenticatedHeaderWrapper = styled.div`
   padding: 20px 16px;
@@ -225,22 +230,26 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
   const percentChange = portfolio?.tokensTotalDenominatedValueChange?.percentage?.value
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false)
 
+  const { account: accountAptos, disconnect: disconnectAptosAccount } = useWallet();
+  const accountAdress = (accountAptos?.ansName ? accountAptos?.ansName : truncateAddress(accountAptos?.address)) || "";
+  const {balance: aptBalance} = useTokenBalance(accountAptos?.address || "", TOKEN_LIST[1].address, TOKEN_LIST[1].decimals);
+
   return (
     <AuthenticatedHeaderWrapper>
       <HeaderWrapper>
         <StatusWrapper>
-          <StatusIcon account={account} connection={connection} size={40} />
-          {account && (
+          {/*<StatusIcon account={account} connection={connection} size={40} />*/}
+          {accountAptos && (
             <AccountNamesWrapper>
               <ThemedText.SubHeader>
-                <CopyText toCopy={ENSName ?? account}>{ENSName ?? shortenAddress(account)}</CopyText>
+                <CopyText toCopy={accountAdress}>{accountAdress}</CopyText>
               </ThemedText.SubHeader>
               {/* Displays smaller view of account if ENS name was rendered above */}
-              {ENSName && (
+              {/*{ENSName && (
                 <ThemedText.BodySmall color="neutral2">
                   <CopyText toCopy={account}>{shortenAddress(account)}</CopyText>
                 </ThemedText.BodySmall>
-              )}
+              )}*/}
             </AccountNamesWrapper>
           )}
         </StatusWrapper>
@@ -258,7 +267,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           >
             <IconWithConfirmTextButton
               data-testid="wallet-disconnect"
-              onConfirm={disconnect}
+              onConfirm={()=>disconnectAptosAccount()}
               onShowConfirm={setShowDisconnectConfirm}
               Icon={Power}
               text="Disconnect"
@@ -268,15 +277,16 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
         </IconContainer>
       </HeaderWrapper>
       <PortfolioDrawerContainer>
-        {totalBalance !== undefined ? (
+        {aptBalance !== null ? (
           <FadeInColumn gap="xs">
             <ThemedText.HeadlineLarge fontWeight={535} data-testid="portfolio-total-balance">
-              {formatNumber({
-                input: totalBalance,
+              {aptBalance + " APT"}
+              {/*{formatNumber({
+                input: aptBalance,
                 type: NumberType.PortfolioBalance,
-              })}
+              })}*/}
             </ThemedText.HeadlineLarge>
-            <AutoRow marginBottom="20px">
+            {/*<AutoRow marginBottom="20px">
               {absoluteChange !== 0 && percentChange && (
                 <>
                   <DeltaArrow delta={absoluteChange} />
@@ -288,7 +298,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
                   </ThemedText.BodySecondary>
                 </>
               )}
-            </AutoRow>
+            </AutoRow>*/}
           </FadeInColumn>
         ) : (
           <Column gap="xs">
@@ -296,7 +306,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
             <LoadingBubble height="16px" width="100px" margin="4px 0 20px 0" />
           </Column>
         )}
-        {!shouldDisableNFTRoutes && (
+        {/*{!shouldDisableNFTRoutes && (
           <HeaderButton
             data-testid="nft-view-self-nfts"
             onClick={navigateToProfile}
@@ -305,8 +315,8 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           >
             <Trans>View and sell NFTs</Trans>
           </HeaderButton>
-        )}
-        {shouldShowBuyFiatButton && (
+        )}*/}
+        {/*{shouldShowBuyFiatButton && (
           <HeaderButton
             size={ButtonSize.medium}
             emphasis={ButtonEmphasis.highSoft}
@@ -327,8 +337,8 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
               </>
             )}
           </HeaderButton>
-        )}
-        {Boolean(!fiatOnrampAvailable && fiatOnrampAvailabilityChecked) && (
+        )}*/}
+        {/*{Boolean(!fiatOnrampAvailable && fiatOnrampAvailabilityChecked) && (
           <FiatOnrampNotAvailableText marginTop="8px">
             <Trans>Not available in your region</Trans>
             <Tooltip
@@ -345,9 +355,9 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
               </FiatOnrampAvailabilityExternalLink>
             </Tooltip>
           </FiatOnrampNotAvailableText>
-        )}
-        <MiniPortfolio account={account} />
-        {isUnclaimed && (
+        )}*/}
+        <MiniPortfolio account={accountAptos?.address || ""} />
+        {/*{isUnclaimed && (
           <UNIButton onClick={openClaimModal} size={ButtonSize.medium} emphasis={ButtonEmphasis.medium}>
             <Trans>Claim</Trans> {unclaimedAmount?.toFixed(0, { groupSeparator: ',' } ?? '-')} <Trans>reward</Trans>
           </UNIButton>
@@ -356,7 +366,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           <UNIButton size={ButtonSize.medium} emphasis={ButtonEmphasis.medium} onClick={openNftModal}>
             <Trans>Claim Uniswap NFT Airdrop</Trans>
           </UNIButton>
-        )}
+        )}*/}
       </PortfolioDrawerContainer>
     </AuthenticatedHeaderWrapper>
   )

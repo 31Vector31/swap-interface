@@ -30,6 +30,7 @@ import {getAccountCoinValue, getPoolInfo, getRewardsPoolUserInfo, getTokenPairMe
 import {TOKEN_LIST} from "../../constants/tokenList";
 import {SWAP_ADDRESS, SWAP_ADDRESS2} from "../../constants/aptos";
 import {formatBalance, numberWithCommas} from "../../utils/sundry";
+import {useAccountDrawer} from "../AccountDrawer";
 
 const SwapBg = styled.div`
   position: fixed;
@@ -150,6 +151,7 @@ export const manageStakeSections = ["Stake", "Unstake", "Collect Rewards"];
 export function Stake() {
     const isDark = useIsDarkMode()
     const theme = useTheme()
+    const [, toggleAccountDrawer] = useAccountDrawer()
 
     const [selectedTab, setSelectedTab] = useState(0);
     const [inputToken, setInputToken] = useState(0);
@@ -336,7 +338,9 @@ export function Stake() {
     const mainButton = () => {
         switch (true) {
             case !connected:
-                return (<StyledDiv><WalletSelector/></StyledDiv>);
+                return <StyledButtonLight onClick={()=>toggleAccountDrawer()}>
+                            <Trans>Connect wallet</Trans>
+                        </StyledButtonLight>;
             case selectedTab === 0:
                 return (<StyledButtonLight onClick={onSignAndSubmitTransaction}>
                             <Trans>Stake</Trans>

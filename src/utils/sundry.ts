@@ -15,3 +15,8 @@ export const numberWithCommas = (number: number, decimal?: number) => {
 export const formatBalance = (balance: number, decimals: number) => {
     return balance / 10 ** decimals;
 };
+
+export const truncateAddress = (address: string | undefined) => {
+    if (!address) return;
+    return `${address.slice(0, 6)}...${address.slice(-5)}`;
+};
