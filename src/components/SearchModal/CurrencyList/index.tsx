@@ -22,6 +22,7 @@ import Row, { RowFixed } from '../../Row'
 import { MouseoverTooltip } from '../../Tooltip'
 import { LoadingRows, MenuItem } from '../styled'
 import { scrollbarStyle } from './index.css'
+import {TOKEN_LIST} from "../../../constants/tokenList";
 
 function currencyKey(currency: Currency): string {
   return currency.isToken ? currency.address : 'ETHER'
@@ -148,18 +149,19 @@ export function CurrencyRow({
         dim={isBlockedToken}
       >
         <Column>
-          <CurrencyLogo
+          {/*<CurrencyLogo
             currency={currency}
             size="36px"
             style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}
-          />
+          />*/}
+          <img style={{borderRadius: "50%"}} src={TOKEN_LIST[currency.decimals].iconSrc} alt={currency.name} width={36} height={36}/>
         </Column>
         <AutoColumn style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}>
           <Row>
             <CurrencyName title={currency.name}>{currency.name}</CurrencyName>
-            <WarningContainer>
+            {/*<WarningContainer>
               <TokenSafetyIcon warning={warning} />
-            </WarningContainer>
+            </WarningContainer>*/}
           </Row>
           <ThemedText.LabelMicro ml="0px">{currency.symbol}</ThemedText.LabelMicro>
         </AutoColumn>

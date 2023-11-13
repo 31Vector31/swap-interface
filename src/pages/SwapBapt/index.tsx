@@ -31,6 +31,7 @@ import { SWAP_ADDRESS } from 'constants/aptos';
 import {getAccountCoinValue, getTokenPairMetadata} from 'apiRequests';
 import {TOKEN_LIST} from "../../constants/tokenList";
 import {useAccountDrawer} from "../../components/AccountDrawer";
+import {Currency} from "@uniswap/sdk-core";
 
 const SwapBg = styled.div`
   position: fixed;
@@ -351,6 +352,14 @@ export function Swap() {
         else onInputAmount(outputAmount);*/
     }, [inputToken, outputToken, inputAmount, outputAmount]);
 
+    const onInputCurrencySelect = useCallback((currency: Currency) => {
+        setInputToken(currency.decimals);
+    }, [setInputToken]);
+
+    const onOutputCurrencySelect = useCallback((currency: Currency) => {
+        setOutputToken(currency.decimals);
+    }, [setOutputToken]);
+
     const mainButton = () => {
         switch (true) {
             case !connected:
@@ -392,7 +401,7 @@ export function Swap() {
                             value={inputAmount}
                             currency={inputToken}
                             onUserInput={onInputAmount}
-                            onCurrencySelect={setInputToken}
+                            onCurrencySelect={onInputCurrencySelect}
                             balance={inputBalance}
                         />
                     </Trace>
@@ -416,7 +425,7 @@ export function Swap() {
                                 value={outputAmount}
                                 currency={outputToken}
                                 onUserInput={onOutputAmount}
-                                onCurrencySelect={setOutputToken}
+                                onCurrencySelect={onOutputCurrencySelect}
                                 balance={outputBalance}
                             />
                         </Trace>

@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
 import { t, Trans } from '@lingui/macro'
 import { InterfaceEventName, InterfaceModalName } from '@uniswap/analytics-events'
-import { Currency, Token } from '@uniswap/sdk-core'
+import {ChainId, Currency, Token} from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { Trace } from 'analytics'
 import { useCachedPortfolioBalancesQuery } from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
@@ -28,6 +28,7 @@ import CommonBases from './CommonBases'
 import { CurrencyRow, formatAnalyticsEventProperties } from './CurrencyList'
 import CurrencyList from './CurrencyList'
 import { PaddedColumn, SearchInput, Separator } from './styled'
+import {TOKEN_LIST} from "../../constants/tokenList";
 
 const ContentWrapper = styled(Column)`
   background-color: ${({ theme }) => theme.surface1};
@@ -135,7 +136,7 @@ export function CurrencySearch({
   const native = useNativeCurrency(chainId)
   const wrapped = native.wrapped
 
-  const searchCurrencies: Currency[] = useMemo(() => {
+  /*const searchCurrencies: Currency[] = useMemo(() => {
     const s = debouncedQuery.toLowerCase().trim()
 
     const tokens = filteredSortedTokens.filter((t) => !(t.equals(wrapped) || (disableNonToken && t.isNative)))
@@ -155,7 +156,20 @@ export function CurrencySearch({
     wrapped,
     disableNonToken,
     native,
-  ])
+  ])*/
+
+  const searchCurrencies = TOKEN_LIST.filter((el => el.name.toLowerCase().includes(debouncedQuery.toLowerCase()))).map((el, index) => {
+    return new Token(
+        ChainId.MAINNET,
+        "0x6f14C02Fc1F78322cFd7d707aB90f18baD3B54f5",
+        index,
+        el.symbol,
+        el.name
+    );
+  });
+
+  console.log(searchCurrencies);
+  console.log(debouncedQuery);
 
   const handleCurrencySelect = useCallback(
     (currency: Currency, hasWarning?: boolean) => {
@@ -281,7 +295,7 @@ export function CurrencySearch({
                   height={height}
                   currencies={searchCurrencies}
                   otherListTokens={filteredInactiveTokens}
-                  onCurrencySelect={handleCurrencySelect}
+                  onCurrencySelect={onCurrencySelect}
                   otherCurrency={otherSelectedCurrency}
                   selectedCurrency={selectedCurrency}
                   fixedListRef={fixedList}

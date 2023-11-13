@@ -52,7 +52,7 @@ export default memo(function CurrencySearchModal({
     setModalView(CurrencyModalView.tokenSafety)
   }
 
-  const handleCurrencySelect = useCallback(
+  /*const handleCurrencySelect = useCallback(
     (currency: Currency, hasWarning?: boolean) => {
       if (hasWarning && currency.isToken && !userAddedTokens.find((token) => token.equals(currency))) {
         showTokenSafetySpeedbump(currency)
@@ -62,7 +62,7 @@ export default memo(function CurrencySearchModal({
       }
     },
     [onDismiss, onCurrencySelect, userAddedTokens]
-  )
+  )*/
   // used for token safety
   const [warningToken, setWarningToken] = useState<Token | undefined>()
 
@@ -70,7 +70,7 @@ export default memo(function CurrencySearchModal({
   // change min height if not searching
   let modalHeight: number | undefined = 80
   let content = null
-  switch (modalView) {
+  /*switch (modalView) {
     case CurrencyModalView.search:
       if (windowHeight) {
         // Converts pixel units to vh for Modal component
@@ -103,7 +103,24 @@ export default memo(function CurrencySearchModal({
         )
       }
       break
+  }*/
+  if (windowHeight) {
+    // Converts pixel units to vh for Modal component
+    modalHeight = Math.min(Math.round((680 / windowHeight) * 100), 80)
   }
+  content = (
+      <CurrencySearch
+          isOpen={isOpen}
+          onDismiss={onDismiss}
+          onCurrencySelect={onCurrencySelect}
+          selectedCurrency={selectedCurrency}
+          otherSelectedCurrency={otherSelectedCurrency}
+          showCommonBases={showCommonBases}
+          showCurrencyAmount={showCurrencyAmount}
+          disableNonToken={disableNonToken}
+          onlyShowCurrenciesWithBalance={onlyShowCurrenciesWithBalance}
+      />
+  );
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} height={modalHeight}>
       {content}

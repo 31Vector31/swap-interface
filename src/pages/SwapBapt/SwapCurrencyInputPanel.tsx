@@ -8,13 +8,15 @@ import {darken} from "polished";
 import {Input as NumericalInput} from "../../components/NumericalInput";
 import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
 import CurrencySelectButton from "./CurrencySelectButton";
-import {ReactNode} from "react";
+import {ReactNode, useCallback, useState} from "react";
 import {LoadingOpacityContainer} from "../../components/Loader/styled";
 import {FiatValue} from "../../components/CurrencyInputPanel/FiatValue";
 import {NumberType} from "../../utils/formatNumbers";
 import {TraceEvent} from "../../analytics";
 import {BrowserEvent, InterfaceElementName, SwapEventName} from "@uniswap/analytics-events";
 import {useWallet} from "@aptos-labs/wallet-adapter-react";
+import CurrencySearchModal from "components/SearchModal/CurrencySearchModal";
+import {Currency} from "@uniswap/sdk-core";
 
 const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -124,7 +126,7 @@ interface SwapCurrencyInputPanelProps {
     value: string
     currency: number
     onUserInput: (value: string) => void
-    onCurrencySelect: (value: number) => void
+    onCurrencySelect: (currency: Currency) => void
     balance: number
 }
 
@@ -132,6 +134,11 @@ const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrency
 
     const theme = useTheme()
     const {account} = useWallet();
+    /*const [modalOpen, setModalOpen] = useState(false)
+
+    const handleDismissSearch = useCallback(() => {
+        setModalOpen(false)
+    }, [setModalOpen])*/
 
     return (
         <InputPanel>
@@ -185,6 +192,9 @@ const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrency
                     </RowBetween>
                 </FiatRow>
             </Container>
+
+            {/*<CurrencySearchModal isOpen={modalOpen} onDismiss={handleDismissSearch} onCurrencySelect={()=>{}}/>*/}
+
         </InputPanel>
     )
 }

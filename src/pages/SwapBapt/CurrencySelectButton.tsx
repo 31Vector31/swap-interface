@@ -6,6 +6,8 @@ import {ButtonGray} from "../../components/Button";
 import {AutoColumn} from "../../components/Column";
 import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
 import {TokenType, TOKEN_LIST} from "../../constants/tokenList";
+import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
+import {Currency} from "@uniswap/sdk-core";
 
 const CurrencySelect = styled(ButtonGray)<{
     visible: boolean
@@ -174,12 +176,25 @@ const TokenLogo = styled.img`
 
 interface CurrencySelectButtonProps {
     currency: number
-    onCurrencySelect: (value: number) => void
+    onCurrencySelect: (currency: Currency) => void
 }
 
 export default function CurrencySelectButton({currency, onCurrencySelect}: CurrencySelectButtonProps) {
 
-    const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+    const [modalOpen, setModalOpen] = useState(false)
+    const handleDismissSearch = useCallback(() => {
+        setModalOpen(false)
+    }, [setModalOpen])
+    const handleOpenSearch = useCallback(() => {
+        setModalOpen(true)
+    }, [setModalOpen])
+
+    const сurrencySelect = useCallback((currency: Currency) => {
+        onCurrencySelect(currency);
+        setModalOpen(false);
+    }, [onCurrencySelect, setModalOpen]);
+
+    /*const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
     const toggleDropdown = useCallback(() => {
         setDropdownOpen(prevState => !prevState);
@@ -188,7 +203,7 @@ export default function CurrencySelectButton({currency, onCurrencySelect}: Curre
     const selectCurrency = useCallback((index: number) => {
         onCurrencySelect(index);
         setDropdownOpen(false);
-    }, []);
+    }, []);*/
 
     return (
         <div>
@@ -196,7 +211,7 @@ export default function CurrencySelectButton({currency, onCurrencySelect}: Curre
                 className="open-currency-select-button"
                 visible={true}
                 selected={Number.isInteger(currency)}
-                onClick={toggleDropdown}
+                onClick={handleOpenSearch}
             >
                 <Aligner>
                     <RowFixed>
@@ -210,10 +225,11 @@ export default function CurrencySelectButton({currency, onCurrencySelect}: Curre
                             {TOKEN_LIST[currency].symbol || <Trans>Select token</Trans>}
                         </StyledTokenName>
                     </RowFixed>
-                    <StyledDropDown selected={dropdownOpen} />
+                    <StyledDropDown selected={false} />
                 </Aligner>
             </CurrencySelect>
-            {dropdownOpen &&
+            <CurrencySearchModal isOpen={modalOpen} onDismiss={handleDismissSearch} onCurrencySelect={сurrencySelect}/>
+            {/*{dropdownOpen &&
                 <TokensList>
                     {TOKEN_LIST && TOKEN_LIST.map(
                         ({symbol, iconSrc, name}: TokenType, index) => {
@@ -225,7 +241,7 @@ export default function CurrencySelectButton({currency, onCurrencySelect}: Curre
                             );
                         }
                     )}
-                </TokensList>}
+                </TokensList>}*/}
         </div>
     )
 }
