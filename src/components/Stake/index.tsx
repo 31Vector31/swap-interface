@@ -132,16 +132,13 @@ const StyledButtonLight = styled(ButtonLight)`
 `
 
 export type RewardsPoolUserInfoType = {
-    reward_debt_x: string;
-    reward_debt_y: string;
+    reward_debt: string;
     staked_tokens: string;
-    withdrawn_x: string;
-    withdrawn_y: string;
+    withdrawn: string;
 };
 
 export type RewardsPoolInfoType = {
-    dds_x: string;
-    dds_y: string;
+    dds: string;
     precision_factor: string;
     staked_tokens: string;
 };
@@ -182,8 +179,8 @@ export function Stake() {
     const onSignAndSubmitTransaction = async () => {
         const payload: Types.TransactionPayload = {
             type: "entry_function_payload",
-            function: `${SWAP_ADDRESS2}::router_v2::stake_tokens_in_pool`,
-            type_arguments: ["0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2", TOKEN_LIST[1].address],
+            function: `${SWAP_ADDRESS2}::router_v2::stake_tokens`,
+            type_arguments: [TOKEN_LIST[inputToken].address],
             /*type_arguments: [TOKEN_LIST[1].address, "0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2"],*/
             arguments: [Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals], // 1 is in Octas
         };
@@ -192,6 +189,7 @@ export function Stake() {
             // if you want to wait for transaction
             await aptosClient.waitForTransaction(response?.hash || "");
 
+            console.log(response?.hash);
             /*console.log(response?.hash);
             updatePoolInfo();
             updateUserStakeInfo();*/
@@ -203,9 +201,9 @@ export function Stake() {
     const onWithdrawStake = async () => {
         const payload: Types.TransactionPayload = {
             type: "entry_function_payload",
-            function: `${SWAP_ADDRESS2}::router_v2::withdraw_tokens_from_pool`,
-            type_arguments: ["0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2", TOKEN_LIST[1].address],
-            arguments: [Number(inputAmount) * 10 ** 6], // 1 is in Octas
+            function: `${SWAP_ADDRESS2}::router_v2::unstake_tokens`,
+            type_arguments: [TOKEN_LIST[inputToken].address],
+            arguments: [Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals], // 1 is in Octas
         };
         try {
             const response = await signAndSubmitTransaction(payload);
@@ -264,12 +262,12 @@ export function Stake() {
     }, [connected, inputToken, account]);
 
     useEffect(() => {
-        getPoolInfo("0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2", TOKEN_LIST[1].address).then(res => {
+        getPoolInfo("0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2").then(res => {
             if(res.data) {
                 const data = res.data;
+                console.log(data);
                 const pool_info: RewardsPoolInfoType = {
-                    dds_x: data.magnified_dividends_per_share_x,
-                    dds_y: data.magnified_dividends_per_share_y,
+                    dds: data.magnified_dividends_per_share,
                     precision_factor: data.precision_factor,
                     staked_tokens: data.staked_tokens,
                 };
@@ -284,15 +282,14 @@ export function Stake() {
     useEffect(() => {
         if (connected && account) {
             if (TOKEN_LIST[inputToken].address) {
-                getRewardsPoolUserInfo(account.address, "0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2", TOKEN_LIST[1].address).then(res => {
+                getRewardsPoolUserInfo(account.address, "0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2").then(res => {
                     if (res.data) {
                         const data = res.data;
+                        console.log(data);
                         const pool_data: RewardsPoolUserInfoType = {
-                            reward_debt_x: data.reward_debt_x,
-                            reward_debt_y: data.reward_debt_y,
+                            reward_debt: data.reward_debt,
                             staked_tokens: data.staked_tokens.value,
-                            withdrawn_x: data.withdrawn_x,
-                            withdrawn_y: data.withdrawn_y,
+                            withdrawn: data.withdrawn,
                         };
                         setRewardsPoolInfo(pool_data);
                     } else {
@@ -306,22 +303,21 @@ export function Stake() {
     const pending = useMemo(() => {
         if(!poolInfo || !rewardsPoolInfo) return {};
 
-        const xValue = Number((
-            (Number(rewardsPoolInfo.staked_tokens) * Number(poolInfo.dds_x)) /
+        const value = Number((
+            (Number(rewardsPoolInfo.staked_tokens) * Number(poolInfo.dds)) /
             Number(poolInfo.precision_factor) -
-            Number(rewardsPoolInfo.reward_debt_x)
+            Number(rewardsPoolInfo.reward_debt)
         ).toFixed(0));
 
-        const yValue = Number((
-            (Number(rewardsPoolInfo.staked_tokens) * Number(poolInfo.dds_y)) /
+        console.log(Number((
+            (Number(rewardsPoolInfo.staked_tokens) * Number(poolInfo.dds)) /
             Number(poolInfo.precision_factor) -
-            Number(rewardsPoolInfo.reward_debt_y)
-        ).toFixed(0));
+            Number(rewardsPoolInfo.reward_debt)
+        )));
 
-        const x = numberWithCommas(formatBalance(xValue, TOKEN_LIST[1].decimals)) || 0 + " " + TOKEN_LIST[1].symbol;
-        const y = numberWithCommas(formatBalance(yValue, TOKEN_LIST[inputToken].decimals)) || 0 + " " + TOKEN_LIST[inputToken].symbol;
+        const x = numberWithCommas(formatBalance(value, TOKEN_LIST[inputToken].decimals)) || 0 + " " + TOKEN_LIST[inputToken].symbol;
 
-        return {x, y};
+        return {x};
     }, [poolInfo, rewardsPoolInfo, inputToken]);
 
     const onInputAmount = useCallback((value: string) => {
@@ -330,7 +326,7 @@ export function Stake() {
 
     const selectTab = useCallback((value: number) => {
         if(value === 2) {
-            setInputAmount(pending.y || "0");
+            setInputAmount(pending.x || "0");
         }else setInputAmount("0");
         setSelectedTab(value);
     }, []);
