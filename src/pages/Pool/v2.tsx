@@ -188,7 +188,7 @@ export default function Pool() {
                     </ThemedText.DeprecatedMediumHeader>
                   </HideSmall>
                   <ButtonRow>
-                    <ResponsiveButtonSecondary as={Link} padding="6px 8px" to="/add/v2/ETH">
+                    <ResponsiveButtonSecondary as={Link} padding="6px 8px" to="/add/v2">
                       <Trans>Create a pair</Trans>
                     </ResponsiveButtonSecondary>
                     <ResponsiveButtonPrimary id="find-pool-button" as={Link} to="/pools/v2/find" padding="6px 8px">
@@ -196,7 +196,7 @@ export default function Pool() {
                         <Trans>Import pool</Trans>
                       </Text>
                     </ResponsiveButtonPrimary>
-                    <ResponsiveButtonPrimary id="join-pool-button" as={Link} to="/add/v2/ETH" padding="6px 8px">
+                    <ResponsiveButtonPrimary id="join-pool-button" as={Link} to="/add/v2" padding="6px 8px">
                       <Text fontWeight={535} fontSize={16}>
                         <Trans>Add V2 liquidity</Trans>
                       </Text>

@@ -33,6 +33,7 @@ const Tokens = lazy(() => import('pages/Tokens'))
 const TokenPairInfo = lazy(() => import('pages/TokenPairInfo'))
 const StakingPools = lazy(() => import('pages/StakingPools'))
 const Vote = lazy(() => import('pages/Vote'))
+const AddLiquidityBapt = lazy(() => import('pages/AddLiquidityBapt'))
 
 // this is the same svg defined in assets/images/blue-loader.svg
 // it is defined here because the remote asset may not have had time to load when this file is executing
@@ -113,8 +114,9 @@ export const routes: RouteDefinition[] = [
     getElement: () => <PoolDetails />,
     enabled: (args) => Boolean(args.infoPoolPageEnabled),
   }),
-  createRouteDefinition({
-    path: '/vote/*',
+  createRouteDefinition({ path: '/add/v2', getElement: () => <AddLiquidityBapt /> }),
+  /*createRouteDefinition({
+    path: '/vote/!*',
     getElement: () => (
       <Suspense fallback={<LazyLoadSpinner />}>
         <Vote />
@@ -128,9 +130,9 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({
     path: '/send',
     getElement: () => <Navigate to={{ ...location, pathname: '/swap' }} replace />,
-  }),
+  }),*/
   createRouteDefinition({ path: '/swap', getElement: () => <SwapBapt /> }),
-  createRouteDefinition({ path: '/swap2', getElement: () => <Swap /> }),
+  /*createRouteDefinition({ path: '/swap2', getElement: () => <Swap /> }),*/
   createRouteDefinition({ path: '/pool/v2/find', getElement: () => <PoolFinder /> }),
   createRouteDefinition({ path: '/pool/v2', getElement: () => <PoolV2 /> }),
   /*createRouteDefinition({ path: '/pool', getElement: () => <Pool /> }),
@@ -139,18 +141,18 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/pools/v2', getElement: () => <PoolV2 /> }),
   /*createRouteDefinition({ path: '/pools', getElement: () => <Pool /> }),
   createRouteDefinition({ path: '/pools/:tokenId', getElement: () => <PositionPage /> }),*/
-  createRouteDefinition({
+  /*createRouteDefinition({
     path: '/add/v2',
     nestedPaths: [':currencyIdA', ':currencyIdA/:currencyIdB'],
     getElement: () => <RedirectDuplicateTokenIdsV2 />,
-  }),
-  createRouteDefinition({
+  }),*/
+  /*createRouteDefinition({
     path: '/add',
     nestedPaths: [':currencyIdA', ':currencyIdA/:currencyIdB', ':currencyIdA/:currencyIdB/:feeAmount'],
     getElement: () => <RedirectDuplicateTokenIds />,
-  }),
+  }),*/
 
-  createRouteDefinition({
+  /*createRouteDefinition({
     path: '/increase',
     nestedPaths: [
       ':currencyIdA',
@@ -163,7 +165,7 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/remove/v2/:currencyIdA/:currencyIdB', getElement: () => <RemoveLiquidity /> }),
   createRouteDefinition({ path: '/remove/:tokenId', getElement: () => <RemoveLiquidityV3 /> }),
   createRouteDefinition({ path: '/migrate/v2', getElement: () => <MigrateV2 /> }),
-  createRouteDefinition({ path: '/migrate/v2/:address', getElement: () => <MigrateV2Pair /> }),
+  createRouteDefinition({ path: '/migrate/v2/:address', getElement: () => <MigrateV2Pair /> }),*/
   /*createRouteDefinition({
     path: '/nfts',
     getElement: () => (
