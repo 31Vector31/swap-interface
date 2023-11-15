@@ -84,7 +84,7 @@ export const TOKEN_LIST: TokenType[] = [
         iconSrc: "/external_media/baptlabs-mini.png",
         address:
             "0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2",
-        decimals: 8,
+        decimals: 2,
     },
     {
         name: "MAU V2",
