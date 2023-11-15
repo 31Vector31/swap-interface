@@ -164,7 +164,7 @@ export default function Pool() {
                 <ExternalLink
                   style={{ color: theme.white, textDecoration: 'underline' }}
                   target="_blank"
-                  href="https://docs.uniswap.org/contracts/v2/concepts/core-concepts/pools"
+                  href="#"
                 >
                   <ThemedText.DeprecatedWhite fontSize={14}>
                     <Trans>Read more about providing liquidity</Trans>
@@ -204,7 +204,7 @@ export default function Pool() {
                   </ButtonRow>
                 </TitleRow>
 
-                {!account ? (
+                {/*{!account ? (
                   <Card padding="40px">
                     <ThemedText.DeprecatedBody color={theme.neutral3} textAlign="center">
                       <Trans>Connect to a wallet to view your liquidity.</Trans>
@@ -267,7 +267,7 @@ export default function Pool() {
                       <Trans>No liquidity found.</Trans>
                     </ThemedText.DeprecatedBody>
                   </EmptyProposals>
-                )}
+                )}*/}
               </AutoColumn>
             </AutoColumn>
           )}
