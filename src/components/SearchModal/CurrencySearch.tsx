@@ -161,15 +161,16 @@ export function CurrencySearch({
   const searchCurrencies = TOKEN_LIST.filter((el => el.name.toLowerCase().includes(debouncedQuery.toLowerCase()))).map((el, index) => {
     return new Token(
         ChainId.MAINNET,
-        "0x6f14C02Fc1F78322cFd7d707aB90f18baD3B54f5",
+        "0x6f14C02Fc1F78322cFd7d707aB90f18baD3B5477",
         index,
         el.symbol,
-        el.name
+        el.name,
+        true
     );
   });
 
-  console.log(searchCurrencies);
-  console.log(debouncedQuery);
+ /* console.log(searchCurrencies);
+  console.log(debouncedQuery);*/
 
   const handleCurrencySelect = useCallback(
     (currency: Currency, hasWarning?: boolean) => {

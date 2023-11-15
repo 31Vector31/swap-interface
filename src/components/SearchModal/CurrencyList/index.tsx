@@ -305,7 +305,8 @@ export default function CurrencyList({
 
   const itemKey = useCallback((index: number, data: typeof itemData) => {
     const currency = data[index]
-    return currencyKey(currency)
+    return index
+    /*return currencyKey(currency)*/
   }, [])
 
   return (
