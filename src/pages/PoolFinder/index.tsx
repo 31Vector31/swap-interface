@@ -13,7 +13,7 @@ import { Text } from 'rebass'
 import { StyledInternalLink } from 'theme/components'
 import { ThemedText } from 'theme/components'
 
-import { ButtonDropdownLight } from '../../components/Button'
+import {ButtonDropdownLight, ButtonLight} from '../../components/Button'
 import { LightCard } from '../../components/Card'
 import { BlueCard } from '../../components/Card'
 import { AutoColumn, ColumnCenter } from '../../components/Column'
@@ -30,6 +30,14 @@ import { usePairAdder } from '../../state/user/hooks'
 import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { Dots } from '../Pool/styled'
+import styled from "styled-components";
+import {TOKEN_LIST} from "../../constants/tokenList";
+
+const StyledButtonLight = styled(ButtonLight)`
+  z-index: 0;
+  font-weight: 535;
+  border-radius: 16px;
+`
 
 enum Fields {
   TOKEN0 = 0,
@@ -101,6 +109,20 @@ export default function PoolFinder() {
   const networkSupportsV2 = useNetworkSupportsV2()
   if (!networkSupportsV2) return <V2Unsupported />
 
+  const [inputToken, setInputToken] = useState(1);
+  const [outputToken, setOutputToken] = useState(0);
+  const [isInputActive, setIsInputActive] = useState(true);
+
+  const onInputCurrencySelect = useCallback((currency: Currency) => {
+    setInputToken(currency.decimals);
+    setShowSearch(false);
+  }, [setInputToken]);
+
+  const onOutputCurrencySelect = useCallback((currency: Currency) => {
+    setOutputToken(currency.decimals);
+    setShowSearch(false);
+  }, [setOutputToken]);
+
   return (
     <Trace page={InterfacePageName.POOL_PAGE} shouldLogImpression>
       <>
@@ -119,14 +141,15 @@ export default function PoolFinder() {
             <ButtonDropdownLight
               onClick={() => {
                 setShowSearch(true)
-                setActiveField(Fields.TOKEN0)
+                setIsInputActive(true)
               }}
             >
-              {currency0 ? (
+              {true ? (
                 <Row>
-                  <CurrencyLogo currency={currency0} />
+                  {/*<CurrencyLogo currency={currency0} />*/}
+                  <img src={TOKEN_LIST[inputToken].iconSrc} alt={TOKEN_LIST[inputToken].name} style={{borderRadius: "50%"}} width={24} height={24}/>
                   <Text fontWeight={535} fontSize={20} marginLeft="12px">
-                    {currency0.symbol}
+                    {TOKEN_LIST[inputToken].symbol}
                   </Text>
                 </Row>
               ) : (
@@ -143,14 +166,15 @@ export default function PoolFinder() {
             <ButtonDropdownLight
               onClick={() => {
                 setShowSearch(true)
-                setActiveField(Fields.TOKEN1)
+                setIsInputActive(false)
               }}
             >
-              {currency1 ? (
+              {true ? (
                 <Row>
-                  <CurrencyLogo currency={currency1} />
+                  {/*<CurrencyLogo currency={currency1} />*/}
+                  <img src={TOKEN_LIST[outputToken].iconSrc} alt={TOKEN_LIST[outputToken].name} style={{borderRadius: "50%"}} width={24} height={24}/>
                   <Text fontWeight={535} fontSize={20} marginLeft="12px">
-                    {currency1.symbol}
+                    {TOKEN_LIST[outputToken].symbol}
                   </Text>
                 </Row>
               ) : (
@@ -160,7 +184,7 @@ export default function PoolFinder() {
               )}
             </ButtonDropdownLight>
 
-            {hasPosition && (
+            {/*{hasPosition && (
               <ColumnCenter
                 style={{ justifyItems: 'center', backgroundColor: '', padding: '12px 0px', borderRadius: '12px' }}
               >
@@ -173,9 +197,13 @@ export default function PoolFinder() {
                   </Text>
                 </StyledInternalLink>
               </ColumnCenter>
-            )}
+            )}*/}
 
-            {currency0 && currency1 ? (
+            <StyledButtonLight>
+              <Trans>Import</Trans>
+            </StyledButtonLight>
+
+            {/*{currency0 && currency1 ? (
               pairState === PairState.EXISTS ? (
                 hasPosition && pair ? (
                   <MinimalPositionCard pair={pair} border="1px solid #CED0D9" />
@@ -224,15 +252,14 @@ export default function PoolFinder() {
               ) : null
             ) : (
               prerequisiteMessage
-            )}
+            )}*/}
           </AutoColumn>
 
           <CurrencySearchModal
             isOpen={showSearch}
-            onCurrencySelect={handleCurrencySelect}
+            onCurrencySelect={isInputActive ? onInputCurrencySelect : onOutputCurrencySelect}
             onDismiss={handleSearchDismiss}
-            showCommonBases
-            selectedCurrency={(activeField === Fields.TOKEN0 ? currency1 : currency0) ?? undefined}
+            /*selectedCurrency={(activeField === Fields.TOKEN0 ? currency1 : currency0) ?? undefined}*/
           />
         </AppBody>
         <SwitchLocaleLink />
