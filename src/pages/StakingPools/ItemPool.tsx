@@ -135,7 +135,7 @@ const ItemPool = ({pool, index}: any) => {
                     <Logo src={pool.img} alt={pool.name} width={32} height={32}/>
                     <HeaderTitle>{pool.name}</HeaderTitle>
                 </HeaderMain>
-                <div><ThemeButton size={ButtonSize.small} emphasis={ButtonEmphasis.low}>Stake</ThemeButton></div>
+                <div><ThemeButton size={ButtonSize.small} emphasis={ButtonEmphasis.highSoft}>Stake</ThemeButton></div>
             </Header>
             {showDetails &&
                 <Details>
