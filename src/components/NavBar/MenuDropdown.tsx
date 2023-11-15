@@ -174,7 +174,7 @@ export const MenuDropdown = () => {
                     <Trans>Vote in governance</Trans>
                   </PrimaryMenuRow.Text>
                 </PrimaryMenuRow>
-                <PrimaryMenuRow href="https://info.uniswap.org/#/">
+                <PrimaryMenuRow href="#">
                   <Icon>
                     <BarChartIcon width={24} height={24} color={theme.neutral1} />
                   </Icon>
@@ -191,13 +191,13 @@ export const MenuDropdown = () => {
                 alignItems={{ sm: 'center', md: 'flex-start' }}
                 paddingX="8"
               >
-                <SecondaryLinkedText href="https://help.uniswap.org/en/">
+                <SecondaryLinkedText href="#">
                   <Trans>Help center</Trans> ↗
                 </SecondaryLinkedText>
-                <SecondaryLinkedText href="https://docs.uniswap.org/">
+                <SecondaryLinkedText href="#">
                   <Trans>Documentation</Trans> ↗
                 </SecondaryLinkedText>
-                <SecondaryLinkedText href="https://uniswap.canny.io/feature-requests">
+                <SecondaryLinkedText href="#">
                   <Trans>Feedback</Trans> ↗
                 </SecondaryLinkedText>
                 <SecondaryLinkedText
@@ -220,13 +220,13 @@ export const MenuDropdown = () => {
                 )}
               </Box>
               <IconRow>
-                <Icon href="https://discord.com/invite/FCfyBSbCU5">
+                <Icon href="#">
                   <DiscordIconMenu className={styles.hover} width={24} height={24} color={themeVars.colors.neutral2} />
                 </Icon>
-                <Icon href="https://twitter.com/Uniswap">
+                <Icon href="#">
                   <TwitterIconMenu className={styles.hover} width={24} height={24} color={themeVars.colors.neutral2} />
                 </Icon>
-                <Icon href="https://github.com/Uniswap">
+                <Icon href="#">
                   <GithubIconMenu className={styles.hover} width={24} height={24} color={themeVars.colors.neutral2} />
                 </Icon>
               </IconRow>
