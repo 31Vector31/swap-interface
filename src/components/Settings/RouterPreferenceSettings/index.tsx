@@ -73,10 +73,10 @@ export default function RouterPreferenceSettings() {
               }}
             />
           </RowBetween>
-          <Divider />
+          {/*<Divider />*/}
         </>
       )}
-      <RowBetween gap="sm">
+      {/*<RowBetween gap="sm">
         <RowFixed>
           <Column gap="xs">
             <ThemedText.BodySecondary>
@@ -97,7 +97,7 @@ export default function RouterPreferenceSettings() {
             )
           }
         />
-      </RowBetween>
+      </RowBetween>*/}
     </>
   )
 }
