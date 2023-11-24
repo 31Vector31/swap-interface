@@ -27,7 +27,7 @@ import {ArrowContainer} from "../Swap";
 import SwapDetails from './SwapDetails';
 import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
 import {calculateRate, formatBalance} from 'utils/sundry';
-import { SWAP_ADDRESS } from 'constants/aptos';
+import { SWAP_ADDRESS, SWAP_ADDRESS2 } from 'constants/aptos';
 import {getAccountCoinValue, getTokenPairMetadata} from 'apiRequests';
 import {TOKEN_LIST} from "../../constants/tokenList";
 import {useAccountDrawer} from "../../components/AccountDrawer";
@@ -136,7 +136,7 @@ export function Swap() {
     const [, toggleAccountDrawer] = useAccountDrawer()
 
     const [inputToken, setInputToken] = useState(1);
-    const [outputToken, setOutputToken] = useState(0);
+    const [outputToken, setOutputToken] = useState(9);
 
     const [inputAmount, setInputAmount] = useState("");
     const [outputAmount, setOutputAmount] = useState("");
@@ -184,18 +184,18 @@ export function Swap() {
         if (isLastEditInput) {
             let payload: Types.TransactionPayload = {
                 type: "entry_function_payload",
-                function: `${SWAP_ADDRESS}::router::swap_exact_input`,
+                function: `${SWAP_ADDRESS2}::router_v2::swap_exact_input`,
                 type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[outputToken].address],
                 arguments:
                     [(Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals).toFixed(0),
-                        (Number(outputAmount) * 10 ** TOKEN_LIST[outputToken].decimals * 0.85).toFixed(0)]
+                        (Number(outputAmount) * 0.1 * 10 ** TOKEN_LIST[outputToken].decimals).toFixed(0)]
             };
             submitAndUpdate(payload);
         }
         else {
             let payload: Types.TransactionPayload = {
                 type: "entry_function_payload",
-                function: `${SWAP_ADDRESS}::router::swap_exact_output`,
+                function: `${SWAP_ADDRESS2}::router_v2::swap_exact_output`,
                 type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[outputToken].address],
                 arguments: [
                     (Number(outputAmount) * 10 ** TOKEN_LIST[outputToken].decimals).toFixed(0),

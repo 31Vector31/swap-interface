@@ -24,10 +24,11 @@ import {
     SwapEventName,
 } from '@uniswap/analytics-events'
 import SwapLineItem from "./SwapLineItem";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {TokenPairMetadataType} from "./index";
-import {formatBalance, numberWithCommas } from "utils/sundry";
+import {calculatePriceImpact, formatBalance, numberWithCommas} from "utils/sundry";
 import {TOKEN_LIST} from "../../constants/tokenList";
+import {getAccountCoinValue, getProtocolFee} from "../../apiRequests";
 
 const StyledHeaderRow = styled(RowBetween)<{ disabled: boolean; open: boolean }>`
   padding: 0;
@@ -63,9 +64,16 @@ interface SwapDetailsProps {
 }
 
 export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken, outputAmount, outputToken, isLastEditInput}: SwapDetailsProps) {
-
     const [showDetails, setShowDetails] = useState(false);
     const theme = useTheme()
+
+    const [protocolFee, setProtocolFee] = useState(0);
+
+    useEffect(() => {
+        getProtocolFee().then(res => {
+           setProtocolFee(res);
+        });
+    }, []);
 
     const totalTax = useMemo(() => {
         let totalFee = 0;
@@ -90,10 +98,22 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
         return value;
     }, [outputToken, tokenPairMetadata]);
 
+    const priceImpact = useMemo(() => {
+        if(!tokenPairMetadata || !Number(inputAmount)) return "0";
+        const inputBalance = formatBalance(Number(tokenPairMetadata.balance_x), TOKEN_LIST[inputToken].decimals);
+        const outputBalance = formatBalance(Number(tokenPairMetadata.balance_y), TOKEN_LIST[outputToken].decimals);
+        return calculatePriceImpact(inputBalance, outputBalance, Number(inputAmount));
+    }, [inputToken, tokenPairMetadata, outputToken, inputAmount]);
+
     const fee = useMemo(() => {
-        let value = ((Number(inputAmount) * 3) / 1000).toLocaleString(undefined, {maximumSignificantDigits: 8});
+        let value = (Number(inputAmount) * protocolFee).toLocaleString(undefined, {maximumSignificantDigits: 8});
         return value;
-    }, [inputAmount]);
+    }, [inputAmount, protocolFee]);
+
+    const feePercent = useMemo(() => {
+        let value = parseFloat((protocolFee * 100).toFixed(2));
+        return value;
+    }, [protocolFee]);
 
     const taxPercent = useMemo(() => totalTax/100, [totalTax]);
 
@@ -107,7 +127,7 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
             ? (
                 Number(outputAmount) -
                 (Number(outputAmount) *
-                    (totalTax + 30)) /
+                    (totalTax + 90)) /
                 10000
             ).toLocaleString(undefined, {
                 maximumSignificantDigits:
@@ -165,7 +185,7 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                     </RowFixed>
                 </StyledHeaderRow>
             </TraceEvent>
-            <AdvancedSwapDetails open={showDetails} fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput}/>
+            <AdvancedSwapDetails priceImpact={priceImpact} protocolFeePercent={feePercent} open={showDetails} fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput}/>
         </Wrapper>
     )
 }
@@ -179,17 +199,23 @@ interface AdvancedSwapDetailsProps {
     outputToken: number
     isLastEditInput: boolean
     open: boolean
+    protocolFeePercent: number
+    priceImpact: string
 }
 
-function AdvancedSwapDetails({fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput, open}: AdvancedSwapDetailsProps) {
+function AdvancedSwapDetails({priceImpact, fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput, open, protocolFeePercent}: AdvancedSwapDetailsProps) {
 
     return (
         <AnimatedDropdown open={open}>
             <SwapDetailsWrapper gap="md" data-testid="advanced-swap-details">
                 <Separator />
-                <SwapLineItem label={"Fee (0.3%)"} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
-                <SwapLineItem label={`Tax (${taxPercent}%)`} value={`${taxValue} ${TOKEN_LIST[inputToken].symbol}`}/>
-                <SwapLineItem label={"Slippage %"} value={"Auto"}/>
+                <SwapLineItem label={"Price Impact"} value={`${priceImpact}%`}/>
+                <SwapLineItem label={"Max. slippage"} value={"0.5% (Auto)"}/>
+                <SwapLineItem label={"Token X Fee"} value={"-"}/>
+                <SwapLineItem label={"Token Y Fee"} value={"-"}/>
+                <SwapLineItem label={`Fee (${protocolFeePercent}%)`} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
+                <SwapLineItem label={"Network Cost"} value={`-`}/>
+                {/*<SwapLineItem label={`Tax (${taxPercent}%)`} value={`${taxValue} ${TOKEN_LIST[inputToken].symbol}`}/>*/}
                 <Separator />
                 <SwapLineItem label={"You will receive"} value={`${isLastEditInput ? "~" : ""}${receive} ${TOKEN_LIST[outputToken].symbol}`}/>
             </SwapDetailsWrapper>
