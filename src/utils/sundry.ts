@@ -20,3 +20,17 @@ export const truncateAddress = (address: string | undefined) => {
     if (!address) return;
     return `${address.slice(0, 6)}...${address.slice(-5)}`;
 };
+
+export function calculatePriceImpact(initialTokenAPool: number, initialTokenBPool: number, tokenASwapped: number) {
+    const constantProduct = initialTokenAPool * initialTokenBPool;
+    const newTokenAPool = initialTokenAPool + tokenASwapped;
+    const newTokenBPool = constantProduct / newTokenAPool;
+
+    const tokenBReceived = initialTokenBPool - newTokenBPool;
+    const marketPricePerTokenB = initialTokenAPool / initialTokenBPool;
+    const pricePaidPerTokenB = tokenASwapped / tokenBReceived;
+
+    const priceImpact = (1 - (marketPricePerTokenB / pricePaidPerTokenB)) * 100;
+
+    return priceImpact.toFixed(3);
+}
