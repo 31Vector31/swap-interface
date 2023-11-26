@@ -1,8 +1,16 @@
 import {Trans} from "@lingui/macro";
 import {ButtonEmphasis, ButtonLight, ButtonSize, ThemeButton} from "../../components/Button";
 import {Input as NumericalInput} from "../../components/NumericalInput";
-import {useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import styled, { css, useTheme } from 'styled-components'
+import {TOKEN_LIST} from "../../constants/tokenList";
+import {getAccountCoinValue, getPoolInfo, getRewardsPoolUserInfo} from "../../apiRequests";
+import {formatBalance, numberWithCommas} from "../../utils/sundry";
+import {useWallet} from "@aptos-labs/wallet-adapter-react";
+import {AptosClient, Types} from "aptos";
+import {useAccountDrawer} from "../../components/AccountDrawer";
+import {RewardsPoolInfoType, RewardsPoolUserInfoType} from "../../components/Stake";
+import {SWAP_ADDRESS2} from "../../constants/aptos";
 
 const Container = styled.div`
   border: 1px solid ${({theme}) => theme.surface3};
@@ -123,14 +131,189 @@ const Details = styled.div`
 `
 
 const ItemPool = ({pool, index}: any) => {
-
+    const [, toggleAccountDrawer] = useAccountDrawer();
     const [showDetails, setShowDetails] = useState<boolean>(false);
     const revealDetails = () => setShowDetails(!showDetails);
+
+    const [balance, setBalance] = useState(0);
+    const [stakeInput, setStakeInput] = useState("");
+    const [unstakeInput, setUnstakeInput] = useState("");
+
+    const [poolInfo, setPoolInfo] = useState<RewardsPoolInfoType>();
+    const [rewardsPoolInfo, setRewardsPoolInfo] = useState<RewardsPoolUserInfoType>();
+
+    const {
+        connect,
+        account,
+        network,
+        connected,
+        disconnect,
+        wallet,
+        wallets,
+        signAndSubmitTransaction,
+        signTransaction,
+        signMessage,
+        signMessageAndVerify,
+    } = useWallet();
+
+    const aptosClient = new AptosClient("https://fullnode.testnet.aptoslabs.com/v1", {
+        WITH_CREDENTIALS: false,
+    });
+
+    useEffect(() => {
+        if (!connected) {
+            setBalance(0);
+        }
+        if (connected && account) {
+            if (pool.address) {
+                getAccountCoinValue(account.address, pool.address).then(res => {
+                    if(res.data) {
+                        const value = res.data.coin.value;
+                        setBalance(formatBalance(value, pool.decimals));
+                    }else {
+                        setBalance(0);
+                    }
+                });
+            }
+        }
+    }, [connected, account]);
+
+    useEffect(() => {
+        getPoolInfo(pool.address, TOKEN_LIST[1].address).then(res => {
+            if(res.data) {
+                const data = res.data;
+                console.log(data);
+                const pool_info: RewardsPoolInfoType = {
+                    dds_x: data.magnified_dividends_per_share_x,
+                    dds_y: data.magnified_dividends_per_share_y,
+                    precision_factor: data.precision_factor,
+                    staked_tokens: data.staked_tokens,
+                };
+
+                setPoolInfo(pool_info);
+            }else {
+                setPoolInfo(undefined);
+            }
+        });
+    }, []);
+
+    useEffect(() => {
+        if (connected && account) {
+            if (pool.address) {
+                getRewardsPoolUserInfo(account.address, pool.address, TOKEN_LIST[1].address).then(res => {
+                    if (res.data) {
+                        const data = res.data;
+                        console.log(data);
+                        const pool_data: RewardsPoolUserInfoType = {
+                            reward_debt_x: data.reward_debt_x,
+                            reward_debt_y: data.reward_debt_y,
+                            staked_tokens: data.staked_tokens.value,
+                            withdrawn_x: data.withdrawn_x,
+                            withdrawn_y: data.withdrawn_y,
+                        };
+                        setRewardsPoolInfo(pool_data);
+                    } else {
+                        setRewardsPoolInfo(undefined);
+                    }
+                });
+            }
+        }
+    }, [account, connected]);
+
+    const userStaked = useMemo(() => {
+        if(!rewardsPoolInfo) return 0;
+        const value = numberWithCommas(formatBalance(Number(rewardsPoolInfo.staked_tokens), pool.decimals));
+        return value;
+    }, [rewardsPoolInfo]);
+
+    const totalStaked = useMemo(() => {
+        if(!poolInfo) return 0;
+        const value = numberWithCommas(formatBalance(Number(poolInfo.staked_tokens), pool.decimals));
+        return value;
+    }, [poolInfo]);
+
+    const onSignAndSubmitTransaction = async () => {
+        const payload: Types.TransactionPayload = {
+            type: "entry_function_payload",
+            function: `${SWAP_ADDRESS2}::router_v2::stake_tokens_in_pool`,
+            type_arguments: [pool.address, TOKEN_LIST[1].address],
+            arguments: [Number(stakeInput) * 10 ** pool.decimals], // 1 is in Octas
+        };
+        try {
+            const response = await signAndSubmitTransaction(payload);
+            // if you want to wait for transaction
+            await aptosClient.waitForTransaction(response?.hash || "");
+
+            /*console.log(response?.hash);*/
+            /*console.log(response?.hash);
+            updatePoolInfo();
+            updateUserStakeInfo();*/
+        } catch (error: any) {
+            console.log("error", error);
+        }
+    };
+
+    const onWithdrawStake = async () => {
+        const payload: Types.TransactionPayload = {
+            type: "entry_function_payload",
+            function: `${SWAP_ADDRESS2}::router_v2::unstake_tokens_from_pool`,
+            type_arguments: [pool.address, TOKEN_LIST[1].address],
+            arguments: [Number(unstakeInput) * 10 ** pool.decimals], // 1 is in Octas
+        };
+        try {
+            const response = await signAndSubmitTransaction(payload);
+            // if you want to wait for transaction
+            await aptosClient.waitForTransaction(response?.hash || "");
+
+            /*// Update pool info
+            updatePoolInfo();
+
+            // Update user stake info
+            updateUserStakeInfo();*/
+        } catch (error: any) {
+            console.log("error", error);
+        }
+    };
+
+    const mainStakeButton = () => {
+        switch (true) {
+            case !connected:
+                return <ThemeButton onClick={()=>toggleAccountDrawer()} size={ButtonSize.small} emphasis={ButtonEmphasis.highSoft}>Connect</ThemeButton>;
+            case (Number(stakeInput) > balance):
+                return <ThemeButton disabled={true} onClick={()=>{}} size={ButtonSize.small} emphasis={ButtonEmphasis.highSoft}>Insufficient</ThemeButton>;
+            default:
+                return <ThemeButton onClick={onSignAndSubmitTransaction} size={ButtonSize.small} emphasis={ButtonEmphasis.highSoft}>Stake</ThemeButton>;
+        }
+    }
+
+    const mainUnstakeButton = () => {
+        switch (true) {
+            case !connected:
+                return <ThemeButton onClick={()=>toggleAccountDrawer()} size={ButtonSize.small} emphasis={ButtonEmphasis.highSoft}>Connect</ThemeButton>;
+            case (Number(unstakeInput) > userStaked):
+                return <ThemeButton disabled={true} onClick={()=>{}} size={ButtonSize.small} emphasis={ButtonEmphasis.highSoft}>Insufficient</ThemeButton>;
+            default:
+                return <ThemeButton onClick={onWithdrawStake} size={ButtonSize.small} emphasis={ButtonEmphasis.highSoft}>Unstake</ThemeButton>;
+        }
+    }
+
+    const mainRewardsButton = () => {
+        switch (true) {
+            case !connected:
+                return <StyledButtonLight onClick={()=>toggleAccountDrawer()}>
+                    <Trans>Connect wallet</Trans>
+                </StyledButtonLight>;
+            default:
+                return <StyledButtonLight onClick={()=>{}} disabled={true}>
+                    <Trans>Collect rewards</Trans>
+                </StyledButtonLight>;
+        }
+    }
 
     return (
         <Pool>
             <Header onClick={()=>revealDetails()}>
-                <div>{index}</div>
+                <div>{index + 1}</div>
                 <HeaderMain>
                     <Logo src={pool.img} alt={pool.name} width={32} height={32}/>
                     <HeaderTitle>{pool.name}</HeaderTitle>
@@ -146,30 +329,28 @@ const ItemPool = ({pool, index}: any) => {
                                 <Value>0 APT</Value>
                                 <Value>0 {pool.symbol}</Value>
                             </RewardsBody>
-                            <StyledButtonLight>
-                                <Trans>Connect wallet</Trans>
-                            </StyledButtonLight>
+                            {mainRewardsButton()}
                         </Rewards>
                         <ManageStake>
                             <BlockTitle>Manage Stake</BlockTitle>
-                            <div>Balance: <Value>0 {pool.symbol}</Value></div>
+                            <div>Balance: <Value>{balance} {pool.symbol}</Value></div>
                             <InputContainer>
-                                <StyledNumericalInput value={""} onUserInput={()=>{}} placeholder={"Ex. 1 " + pool.symbol}/>
-                                <ThemeButton size={ButtonSize.small} emphasis={ButtonEmphasis.highSoft}>Connect</ThemeButton>
+                                <StyledNumericalInput value={stakeInput} onUserInput={setStakeInput} placeholder={"Ex. 1 " + pool.symbol}/>
+                                {mainStakeButton()}
                             </InputContainer>
                             <InputContainer>
-                                <StyledNumericalInput value={""} onUserInput={()=>{}} placeholder={"Ex. 1 " + pool.symbol}/>
-                                <ThemeButton size={ButtonSize.small} emphasis={ButtonEmphasis.highSoft}>Connect</ThemeButton>
+                                <StyledNumericalInput value={unstakeInput} onUserInput={setUnstakeInput} placeholder={"Ex. 1 " + pool.symbol}/>
+                                {mainUnstakeButton()}
                             </InputContainer>
                         </ManageStake>
                     </InnerContainer>
                     <Stake>
                         <div>Your stake:</div>
-                        <Value>0 {pool.symbol}</Value>
+                        <Value>{userStaked} {pool.symbol}</Value>
                     </Stake>
                     <Stake>
                         <div>Total staked:</div>
-                        <Value>0 {pool.symbol}</Value>
+                        <Value>{totalStaked} {pool.symbol}</Value>
                     </Stake>
                 </Details>}
         </Pool>
