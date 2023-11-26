@@ -132,13 +132,16 @@ const StyledButtonLight = styled(ButtonLight)`
 `
 
 export type RewardsPoolUserInfoType = {
-    reward_debt: string;
+    reward_debt_x: string;
+    reward_debt_y: string;
     staked_tokens: string;
-    withdrawn: string;
+    withdrawn_x: string;
+    withdrawn_y: string;
 };
 
 export type RewardsPoolInfoType = {
-    dds: string;
+    dds_x: string;
+    dds_y: string;
     precision_factor: string;
     staked_tokens: string;
 };
@@ -151,7 +154,7 @@ export function Stake() {
     const [, toggleAccountDrawer] = useAccountDrawer()
 
     const [selectedTab, setSelectedTab] = useState(0);
-    const [inputToken, setInputToken] = useState(0);
+    const [inputToken, setInputToken] = useState(9);
     const [inputAmount, setInputAmount] = useState("");
     const [inputBalance, setInputBalance] = useState(0);
 
@@ -179,9 +182,8 @@ export function Stake() {
     const onSignAndSubmitTransaction = async () => {
         const payload: Types.TransactionPayload = {
             type: "entry_function_payload",
-            function: `${SWAP_ADDRESS2}::router_v2::stake_tokens`,
-            type_arguments: [TOKEN_LIST[inputToken].address],
-            /*type_arguments: [TOKEN_LIST[1].address, "0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2"],*/
+            function: `${SWAP_ADDRESS2}::router_v2::stake_tokens_in_pool`,
+            type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[1].address],
             arguments: [Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals], // 1 is in Octas
         };
         try {
@@ -189,7 +191,7 @@ export function Stake() {
             // if you want to wait for transaction
             await aptosClient.waitForTransaction(response?.hash || "");
 
-            console.log(response?.hash);
+            /*console.log(response?.hash);*/
             /*console.log(response?.hash);
             updatePoolInfo();
             updateUserStakeInfo();*/
@@ -201,8 +203,8 @@ export function Stake() {
     const onWithdrawStake = async () => {
         const payload: Types.TransactionPayload = {
             type: "entry_function_payload",
-            function: `${SWAP_ADDRESS2}::router_v2::unstake_tokens`,
-            type_arguments: [TOKEN_LIST[inputToken].address],
+            function: `${SWAP_ADDRESS2}::router_v2::unstake_tokens_from_pool`,
+            type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[1].address],
             arguments: [Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals], // 1 is in Octas
         };
         try {
@@ -224,7 +226,7 @@ export function Stake() {
         const payload: Types.TransactionPayload = {
             type: "entry_function_payload",
             function: `${SWAP_ADDRESS2}::router_v2::claim_rewards_from_pool`,
-            type_arguments: ["0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2", TOKEN_LIST[1].address],
+            type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[1].address],
             arguments: [], // 1 is in Octas
         };
         try {
@@ -262,12 +264,13 @@ export function Stake() {
     }, [connected, inputToken, account]);
 
     useEffect(() => {
-        getPoolInfo("0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2").then(res => {
+        getPoolInfo(TOKEN_LIST[inputToken].address, TOKEN_LIST[1].address).then(res => {
             if(res.data) {
                 const data = res.data;
                 console.log(data);
                 const pool_info: RewardsPoolInfoType = {
-                    dds: data.magnified_dividends_per_share,
+                    dds_x: data.magnified_dividends_per_share_x,
+                    dds_y: data.magnified_dividends_per_share_y,
                     precision_factor: data.precision_factor,
                     staked_tokens: data.staked_tokens,
                 };
@@ -282,14 +285,16 @@ export function Stake() {
     useEffect(() => {
         if (connected && account) {
             if (TOKEN_LIST[inputToken].address) {
-                getRewardsPoolUserInfo(account.address, "0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::coin::BAPTv2").then(res => {
+                getRewardsPoolUserInfo(account.address, TOKEN_LIST[inputToken].address, TOKEN_LIST[1].address).then(res => {
                     if (res.data) {
                         const data = res.data;
                         console.log(data);
                         const pool_data: RewardsPoolUserInfoType = {
-                            reward_debt: data.reward_debt,
+                            reward_debt_x: data.reward_debt_x,
+                            reward_debt_y: data.reward_debt_y,
                             staked_tokens: data.staked_tokens.value,
-                            withdrawn: data.withdrawn,
+                            withdrawn_x: data.withdrawn_x,
+                            withdrawn_y: data.withdrawn_y,
                         };
                         setRewardsPoolInfo(pool_data);
                     } else {
@@ -303,21 +308,22 @@ export function Stake() {
     const pending = useMemo(() => {
         if(!poolInfo || !rewardsPoolInfo) return {};
 
-        const value = Number((
-            (Number(rewardsPoolInfo.staked_tokens) * Number(poolInfo.dds)) /
+        const xValue = Number((
+            (Number(rewardsPoolInfo.staked_tokens) * Number(poolInfo.dds_x)) /
             Number(poolInfo.precision_factor) -
-            Number(rewardsPoolInfo.reward_debt)
+            Number(rewardsPoolInfo.reward_debt_x)
         ).toFixed(0));
 
-        console.log(Number((
-            (Number(rewardsPoolInfo.staked_tokens) * Number(poolInfo.dds)) /
+        const yValue = Number((
+            (Number(rewardsPoolInfo.staked_tokens) * Number(poolInfo.dds_y)) /
             Number(poolInfo.precision_factor) -
-            Number(rewardsPoolInfo.reward_debt)
-        )));
+            Number(rewardsPoolInfo.reward_debt_y)
+        ).toFixed(0));
 
-        const x = numberWithCommas(formatBalance(value, TOKEN_LIST[inputToken].decimals)) || 0 + " " + TOKEN_LIST[inputToken].symbol;
+        const x = numberWithCommas(formatBalance(xValue, TOKEN_LIST[1].decimals)) || 0 + " " + TOKEN_LIST[1].symbol;
+        const y = numberWithCommas(formatBalance(yValue, TOKEN_LIST[inputToken].decimals)) || 0 + " " + TOKEN_LIST[inputToken].symbol;
 
-        return {x};
+        return {x, y};
     }, [poolInfo, rewardsPoolInfo, inputToken]);
 
     const onInputAmount = useCallback((value: string) => {
@@ -326,7 +332,7 @@ export function Stake() {
 
     const selectTab = useCallback((value: number) => {
         if(value === 2) {
-            setInputAmount(pending.x || "0");
+            setInputAmount(pending.y || "0");
         }else setInputAmount("0");
         setSelectedTab(value);
     }, []);

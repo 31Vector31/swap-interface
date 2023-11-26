@@ -182,7 +182,7 @@ export default function CurrencySelectButton({currency, onCurrencySelect}: Curre
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
     const toggleDropdown = useCallback(() => {
-        setDropdownOpen(prevState => !prevState);
+        /*setDropdownOpen(prevState => !prevState);*/
     }, []);
 
     const selectCurrency = useCallback((index: number) => {
