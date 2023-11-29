@@ -100,14 +100,13 @@ const Navbar = ({ blur }: { blur: boolean }) => {
   const [accountDrawerOpen, toggleAccountDrawer] = useAccountDrawer()
 
   const handleUniIconClick = useCallback(() => {
-    if (accountDrawerOpen) {
+    /*if (accountDrawerOpen) {
       toggleAccountDrawer()
-    }
+    }*/
     navigate({
       pathname: '/',
-      search: '?intro=true',
     })
-  }, [accountDrawerOpen, navigate, toggleAccountDrawer])
+  }, [navigate])
 
   return (
     <>
@@ -115,13 +114,12 @@ const Navbar = ({ blur }: { blur: boolean }) => {
       <Nav>
         <Box display="flex" height="full" flexWrap="nowrap">
           <Box className={styles.leftSideContainer}>
-            <Box className={styles.logoContainer}>
+            <Box className={styles.logoContainer} onClick={handleUniIconClick}>
               <UniIcon
                 width="48"
                 height="48"
                 data-testid="uniswap-logo"
                 className={styles.logo}
-                onClick={handleUniIconClick}
               />
             </Box>
             {!isNftPage && (
