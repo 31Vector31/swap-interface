@@ -29,6 +29,9 @@ import {TokenPairMetadataType} from "./index";
 import {calculatePriceImpact, formatBalance, numberWithCommas} from "utils/sundry";
 import {TOKEN_LIST} from "../../constants/tokenList";
 import {getAccountCoinValue, getProtocolFee} from "../../apiRequests";
+import {useWallet} from "@aptos-labs/wallet-adapter-react";
+import {AptosAccount, AptosClient, BCS, HexString, TxnBuilderTypes, Types} from "aptos";
+import {SWAP_ADDRESS2} from "../../constants/aptos";
 
 const StyledHeaderRow = styled(RowBetween)<{ disabled: boolean; open: boolean }>`
   padding: 0;
@@ -67,7 +70,49 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
     const [showDetails, setShowDetails] = useState(false);
     const theme = useTheme()
 
+    const {
+        connect,
+        account,
+        network,
+        connected,
+        disconnect,
+        wallet,
+        wallets,
+        signAndSubmitTransaction,
+        signTransaction,
+        signMessage,
+        signMessageAndVerify,
+    } = useWallet();
+
+    const aptosClient = new AptosClient("https://fullnode.testnet.aptoslabs.com/v1", {
+        WITH_CREDENTIALS: false,
+    });
+
     const [protocolFee, setProtocolFee] = useState(0);
+    const [networkCost, setNetworkCost] = useState("0");
+
+    const simulateTransaction = async () => {
+        if(!account) return;
+        const payload = new TxnBuilderTypes.TransactionPayloadEntryFunction(
+            new TxnBuilderTypes.EntryFunction(
+                TxnBuilderTypes.ModuleId.fromStr(`${SWAP_ADDRESS2}::router_v2`),
+                new TxnBuilderTypes.Identifier("swap_exact_input"),
+                [new TxnBuilderTypes.TypeTagStruct(TxnBuilderTypes.StructTag.fromString(TOKEN_LIST[inputToken].address)),
+                    new TxnBuilderTypes.TypeTagStruct(TxnBuilderTypes.StructTag.fromString(TOKEN_LIST[outputToken].address))],
+                [BCS.bcsSerializeUint64(Number((Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals).toFixed(0))),
+                    BCS.bcsSerializeUint64(Number((Number(outputAmount) * 0.1 * 10 ** TOKEN_LIST[outputToken].decimals).toFixed(0)))]
+            ),
+        );
+        const accountAddress = new HexString(account?.address || "");
+        const raw = await aptosClient.generateRawTransaction(accountAddress, payload);
+        // @ts-ignore
+        const transaction = await aptosClient.simulateTransaction(new TxnBuilderTypes.Ed25519PublicKey(HexString.ensure(account.publicKey || "").toUint8Array()), raw);
+        setNetworkCost(transaction[0].gas_used);
+    };
+
+    useEffect(() => {
+        if(connected && account && inputAmount && outputAmount) simulateTransaction();
+    }, [isLastEditInput, inputToken, outputToken, outputAmount, inputAmount, account, connected]);
 
     useEffect(() => {
         getProtocolFee().then(res => {
@@ -185,7 +230,7 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                     </RowFixed>
                 </StyledHeaderRow>
             </TraceEvent>
-            <AdvancedSwapDetails priceImpact={priceImpact} protocolFeePercent={feePercent} open={showDetails} fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput}/>
+            <AdvancedSwapDetails networkCost={networkCost} priceImpact={priceImpact} protocolFeePercent={feePercent} open={showDetails} fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput}/>
         </Wrapper>
     )
 }
@@ -201,9 +246,10 @@ interface AdvancedSwapDetailsProps {
     open: boolean
     protocolFeePercent: number
     priceImpact: string
+    networkCost: string
 }
 
-function AdvancedSwapDetails({priceImpact, fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput, open, protocolFeePercent}: AdvancedSwapDetailsProps) {
+function AdvancedSwapDetails({networkCost, priceImpact, fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput, open, protocolFeePercent}: AdvancedSwapDetailsProps) {
 
     return (
         <AnimatedDropdown open={open}>
@@ -214,7 +260,7 @@ function AdvancedSwapDetails({priceImpact, fee, taxPercent, taxValue, inputToken
                 <SwapLineItem label={"Token X Fee"} value={"-"}/>
                 <SwapLineItem label={"Token Y Fee"} value={"-"}/>
                 <SwapLineItem label={`Fee (${protocolFeePercent}%)`} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
-                <SwapLineItem label={"Network Cost"} value={`-`}/>
+                <SwapLineItem label={"Network Cost"} value={`${networkCost} Gas Units`}/>
                 {/*<SwapLineItem label={`Tax (${taxPercent}%)`} value={`${taxValue} ${TOKEN_LIST[inputToken].symbol}`}/>*/}
                 <Separator />
                 <SwapLineItem label={"You will receive"} value={`${isLastEditInput ? "~" : ""}${receive} ${TOKEN_LIST[outputToken].symbol}`}/>
