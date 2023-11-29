@@ -133,7 +133,7 @@ export default function PoolFinder() {
               <AutoColumn gap="10px">
                 <ThemedText.DeprecatedLink fontWeight={485} color="accent1">
                   <Trans>
-                    <b>Tip:</b> Use this tool to find v2 pools that don&apos;t automatically appear in the interface.
+                    <b>Tip:</b> Use this tool to find V2 pools that don&apos;t automatically appear in the interface.
                   </Trans>
                 </ThemedText.DeprecatedLink>
               </AutoColumn>
