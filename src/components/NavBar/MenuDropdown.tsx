@@ -11,7 +11,7 @@ import {
   EllipsisIcon,
   GithubIconMenu,
   GovernanceIcon,
-  PoolIcon,
+  PoolIcon, TelegramIconMenu,
   TwitterIconMenu,
 } from 'nft/components/icons'
 import { body, bodySmall } from 'nft/css/common.css'
@@ -28,6 +28,13 @@ import { ApplicationModal } from '../../state/application/reducer'
 import * as styles from './MenuDropdown.css'
 import { NavDropdown } from './NavDropdown'
 import { NavIcon } from './NavIcon'
+
+const TelegramWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+`
 
 const PrimaryMenuRow = ({
   to,
@@ -197,18 +204,18 @@ export const MenuDropdown = () => {
                 <SecondaryLinkedText href="#">
                   <Trans>Documentation</Trans> ↗
                 </SecondaryLinkedText>
-                <SecondaryLinkedText href="#">
+                <SecondaryLinkedText href="https://baptswap.canny.io/feature-requests">
                   <Trans>Feedback</Trans> ↗
                 </SecondaryLinkedText>
                 <SecondaryLinkedText
                   onClick={() => {
-                    toggleOpen()
-                    togglePrivacyPolicy()
+                   /* toggleOpen()
+                    togglePrivacyPolicy()*/
                   }}
                 >
                   <Trans>Legal & Privacy</Trans> ↗
                 </SecondaryLinkedText>
-                {(isDevelopmentEnv() || isStagingEnv()) && (
+                {/*{(isDevelopmentEnv() || isStagingEnv()) && (
                   <SecondaryLinkedText
                     onClick={() => {
                       toggleOpen()
@@ -217,16 +224,18 @@ export const MenuDropdown = () => {
                   >
                     <Trans>Feature Flags</Trans>
                   </SecondaryLinkedText>
-                )}
+                )}*/}
               </Box>
               <IconRow>
-                <Icon href="#">
+                <Icon href="https://discord.gg/K68zerM3mF">
                   <DiscordIconMenu className={styles.hover} width={24} height={24} color={themeVars.colors.neutral2} />
                 </Icon>
-                <Icon href="#">
-                  <TwitterIconMenu className={styles.hover} width={24} height={24} color={themeVars.colors.neutral2} />
+                <Icon href="https://t.me/baptswap">
+                  <TelegramWrapper className={styles.hover}>
+                    <TelegramIconMenu width={20} height={20} color={themeVars.colors.neutral2} />
+                  </TelegramWrapper>
                 </Icon>
-                <Icon href="#">
+                <Icon href="https://github.com/BAPTSWAP">
                   <GithubIconMenu className={styles.hover} width={24} height={24} color={themeVars.colors.neutral2} />
                 </Icon>
               </IconRow>
