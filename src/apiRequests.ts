@@ -81,3 +81,18 @@ export async function getProtocolFee() {
     const dexTreasuryFee = await getDexTreasuryFee();
     return (Number(dexLiquidityFee[0]) + Number(dexTreasuryFee[0])) / denominator;
 }
+
+export function getAccountResources(account: string, limit: number = 20) {
+    return fetch(`${TESTNET_NODE_URL}/accounts/${account}/resources?limit=${limit}`).then((res) => res.json());
+}
+
+export function getAccountTransactions(account: string, limit: number = 20) {
+    return fetch(`${TESTNET_NODE_URL}/accounts/${account}/transactions?limit=${limit}`).then((res) => res.json());
+}
+
+
+export async function getAccountStake(account: string) {
+    const resources = await getAccountResources(account, 500);
+    const rewardsPoolUserInfo = resources.filter((resource: any) => resource.type.includes(`${SWAP_ADDRESS2}::swap_v2::RewardsPoolUserInfo`));
+    return rewardsPoolUserInfo;
+}
