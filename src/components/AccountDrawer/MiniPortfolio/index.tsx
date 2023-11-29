@@ -17,6 +17,8 @@ import NFTs from './NFTs'
 import Pools from './Pools'
 import { PortfolioRowWrapper } from './PortfolioRow'
 import Tokens from './Tokens'
+import Stake from './Stake'
+import Activity from './Activity2'
 
 const Wrapper = styled(Column)`
   margin-top: 28px;
@@ -73,6 +75,18 @@ const Pages: Array<Page> = [
     title: <Trans>Tokens</Trans>,
     key: 'tokens',
     component: Tokens,
+    loggingElementName: InterfaceElementName.MINI_PORTFOLIO_TOKENS_TAB,
+  },
+  {
+    title: <Trans>Stake</Trans>,
+    key: 'stake',
+    component: Stake,
+    loggingElementName: InterfaceElementName.MINI_PORTFOLIO_TOKENS_TAB,
+  },
+  {
+    title: <Trans>Activity</Trans>,
+    key: 'activity',
+    component: Activity,
     loggingElementName: InterfaceElementName.MINI_PORTFOLIO_TOKENS_TAB,
   },
   /*{
