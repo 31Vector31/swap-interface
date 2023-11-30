@@ -28,7 +28,7 @@ import {useEffect, useMemo, useState} from "react";
 import {TokenPairMetadataType} from "./index";
 import {calculatePriceImpact, formatBalance, numberWithCommas} from "utils/sundry";
 import {TOKEN_LIST} from "../../constants/tokenList";
-import {getAccountCoinValue, getProtocolFee} from "../../apiRequests";
+import {getAccountCoinValue, getProtocolFee, getTokenFee} from "../../apiRequests";
 import {useWallet} from "@aptos-labs/wallet-adapter-react";
 import {AptosAccount, AptosClient, BCS, HexString, TxnBuilderTypes, Types} from "aptos";
 import {SWAP_ADDRESS2} from "../../constants/aptos";
@@ -91,6 +91,9 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
     const [protocolFee, setProtocolFee] = useState(0);
     const [networkCost, setNetworkCost] = useState("0");
 
+    const [inputFee, setInputFee] = useState(0);
+    const [outputFee, setOutputFee] = useState(0);
+
     const simulateTransaction = async () => {
         if(!account) return;
         const payload = new TxnBuilderTypes.TransactionPayloadEntryFunction(
@@ -119,6 +122,20 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
            setProtocolFee(res);
         });
     }, []);
+
+    useEffect(() => {
+        getTokenFee(TOKEN_LIST[inputToken].address).then(res => {
+            if(Number(res)) setInputFee(res);
+            else setInputFee(0);
+        })
+    }, [inputToken]);
+
+    useEffect(() => {
+        getTokenFee(TOKEN_LIST[outputToken].address).then(res => {
+            if(Number(res)) setOutputFee(res);
+            else setOutputFee(0);
+        });
+    }, [outputToken]);
 
     const totalTax = useMemo(() => {
         let totalFee = 0;
@@ -230,7 +247,7 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                     </RowFixed>
                 </StyledHeaderRow>
             </TraceEvent>
-            <AdvancedSwapDetails networkCost={networkCost} priceImpact={priceImpact} protocolFeePercent={feePercent} open={showDetails} fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput}/>
+            <AdvancedSwapDetails inputFee={inputFee} outputFee={outputFee} networkCost={networkCost} priceImpact={priceImpact} protocolFeePercent={feePercent} open={showDetails} fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput}/>
         </Wrapper>
     )
 }
@@ -247,9 +264,11 @@ interface AdvancedSwapDetailsProps {
     protocolFeePercent: number
     priceImpact: string
     networkCost: string
+    inputFee: number
+    outputFee: number
 }
 
-function AdvancedSwapDetails({networkCost, priceImpact, fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput, open, protocolFeePercent}: AdvancedSwapDetailsProps) {
+function AdvancedSwapDetails({inputFee, outputFee, networkCost, priceImpact, fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput, open, protocolFeePercent}: AdvancedSwapDetailsProps) {
 
     return (
         <AnimatedDropdown open={open}>
@@ -257,8 +276,8 @@ function AdvancedSwapDetails({networkCost, priceImpact, fee, taxPercent, taxValu
                 <Separator />
                 <SwapLineItem label={"Price Impact"} value={`${priceImpact}%`}/>
                 <SwapLineItem label={"Max. slippage"} value={"0.5% (Auto)"}/>
-                <SwapLineItem label={"Token X Fee"} value={"-"}/>
-                <SwapLineItem label={"Token Y Fee"} value={"-"}/>
+                <SwapLineItem label={"Token X Fee"} value={`${inputFee}%`}/>
+                <SwapLineItem label={"Token Y Fee"} value={`${outputFee}%`}/>
                 <SwapLineItem label={`Fee (${protocolFeePercent}%)`} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
                 <SwapLineItem label={"Network Cost"} value={`${networkCost} Gas Units`}/>
                 {/*<SwapLineItem label={`Tax (${taxPercent}%)`} value={`${taxValue} ${TOKEN_LIST[inputToken].symbol}`}/>*/}

@@ -77,9 +77,29 @@ export function getDexTreasuryFee() {
 }
 
 export async function getProtocolFee() {
-    const dexLiquidityFee = await getDexLiquidityFee();
+    const body = {
+        "function": SWAP_ADDRESS2 + "::admin::get_dex_fees",
+        "type_arguments": [],
+        "arguments": []
+    };
+    const fee = await fetch(`${TESTNET_NODE_URL}/view`, {body: JSON.stringify(body), ...initAptosApi}).then((res) => res.json());
+    return Number(fee[0]) / denominator;
+    /*const dexLiquidityFee = await getDexLiquidityFee();
     const dexTreasuryFee = await getDexTreasuryFee();
-    return (Number(dexLiquidityFee[0]) + Number(dexTreasuryFee[0])) / denominator;
+    return (Number(dexLiquidityFee[0]) + Number(dexTreasuryFee[0])) / denominator;*/
+}
+
+export async function getTokenFee(token: string) {
+    const body = {
+        "function": SWAP_ADDRESS2 + "::fee_on_transfer::get_total_fee_on_transfer",
+        "type_arguments": [token],
+        "arguments": []
+    };
+    const fee = await fetch(`${TESTNET_NODE_URL}/view`, {body: JSON.stringify(body), ...initAptosApi}).then((res) => res.json());
+    return Number(fee[0]) / denominator;
+    /*const dexLiquidityFee = await getDexLiquidityFee();
+    const dexTreasuryFee = await getDexTreasuryFee();
+    return (Number(dexLiquidityFee[0]) + Number(dexTreasuryFee[0])) / denominator;*/
 }
 
 export function getAccountResources(account: string, limit: number = 20) {
