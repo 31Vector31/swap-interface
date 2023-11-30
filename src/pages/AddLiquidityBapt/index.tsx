@@ -113,7 +113,7 @@ export default function AddLiquidity() {
   const createPair = async () => {
     const payload: Types.TransactionPayload = {
       type: "entry_function_payload",
-      function: `${SWAP_ADDRESS}::router::create_pair`,
+      function: `${SWAP_ADDRESS2}::router_v2::create_pair`,
       type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[outputToken].address],
       arguments: [], // 1 is in Octas
     };
@@ -156,7 +156,7 @@ export default function AddLiquidity() {
   const addLiquidity = async () => {
     const payload: Types.TransactionPayload = {
       type: "entry_function_payload",
-      function: `${SWAP_ADDRESS}::router::add_liquidity`,
+      function: `${SWAP_ADDRESS2}::router_v2::add_liquidity`,
       type_arguments: [TOKEN_LIST[inputToken].address, TOKEN_LIST[outputToken].address],
       arguments: [Number(inputAmount) * 10 ** TOKEN_LIST[inputToken].decimals,
         Number(outputAmount) * 10 ** TOKEN_LIST[outputToken].decimals,
@@ -255,7 +255,8 @@ export default function AddLiquidity() {
           (Number(tokenPairMetadata.balance_x) *
               10 ** TOKEN_LIST[outputToken].decimals)
       );
-      setOutputAmount(outputValue.toFixed(2).toString());
+      const output = outputValue.toFixed(2);
+      if(Number(output)) setOutputAmount(output);
     }
   }, [tokenPairMetadata, inputToken, outputToken]);
 
@@ -270,7 +271,8 @@ export default function AddLiquidity() {
           (Number(tokenPairMetadata.balance_y) *
               10 ** TOKEN_LIST[inputToken].decimals)
       );
-      setInputAmount(inputValue.toFixed(2).toString());
+      const input = inputValue.toFixed(2);
+      if(Number(input)) setInputAmount(input);
     }
   }, [tokenPairMetadata, inputToken, outputToken]);
 
