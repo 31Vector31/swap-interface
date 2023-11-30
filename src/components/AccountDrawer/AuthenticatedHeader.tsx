@@ -230,7 +230,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
   const percentChange = portfolio?.tokensTotalDenominatedValueChange?.percentage?.value
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false)
 
-  const { account: accountAptos, disconnect: disconnectAptosAccount } = useWallet();
+  const { account: accountAptos, disconnect: disconnectAptosAccount, wallet: walletAptos } = useWallet();
   const accountAdress = (accountAptos?.ansName ? accountAptos?.ansName : truncateAddress(accountAptos?.address)) || "";
   const {balance: aptBalance} = useTokenBalance(accountAptos?.address || "", TOKEN_LIST[1].address, TOKEN_LIST[1].decimals);
 
@@ -239,6 +239,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
       <HeaderWrapper>
         <StatusWrapper>
           {/*<StatusIcon account={account} connection={connection} size={40} />*/}
+          {walletAptos && <img src={walletAptos.icon} width={40} height={40} alt={walletAptos.name}/>}
           {accountAptos && (
             <AccountNamesWrapper>
               <ThemedText.SubHeader>

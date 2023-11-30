@@ -197,7 +197,7 @@ function Web3StatusInner() {
     )
   }*/
 
-  const { account: accountAptos } = useWallet();
+  const { account: accountAptos, wallet: walletAptos } = useWallet();
 
   if (accountAptos) {
     return (
@@ -228,6 +228,7 @@ function Web3StatusInner() {
               <Text>{ENSName ?? shortenAddress(account)}</Text>
             </AddressAndChevronContainer>
           )}*/}
+          {walletAptos && <img src={walletAptos.icon} width={24} height={24} alt={walletAptos.name}/>}
           <AddressAndChevronContainer>
             <Text>{accountAptos?.ansName ? accountAptos?.ansName : truncateAddress(accountAptos?.address)}</Text>
           </AddressAndChevronContainer>
