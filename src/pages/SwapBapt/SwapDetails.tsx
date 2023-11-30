@@ -125,14 +125,14 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
 
     useEffect(() => {
         getTokenFee(TOKEN_LIST[inputToken].address).then(res => {
-            if(Number(res)) setInputFee(res);
+            if(Number(res)) setInputFee(parseFloat((res * 100).toFixed(2)));
             else setInputFee(0);
         })
     }, [inputToken]);
 
     useEffect(() => {
         getTokenFee(TOKEN_LIST[outputToken].address).then(res => {
-            if(Number(res)) setOutputFee(res);
+            if(Number(res)) setOutputFee(parseFloat((res * 100).toFixed(2)));
             else setOutputFee(0);
         });
     }, [outputToken]);
