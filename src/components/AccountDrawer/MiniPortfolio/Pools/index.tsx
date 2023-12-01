@@ -66,6 +66,8 @@ export default function Pools({ account }: { account: string }) {
 
   const toggleWalletDrawer = useToggleAccountDrawer()
 
+  return <EmptyWalletModule type="pool" onNavigateClick={toggleWalletDrawer} />;
+
   if (!filteredPositions || loading) {
     return <PortfolioSkeleton />
   }

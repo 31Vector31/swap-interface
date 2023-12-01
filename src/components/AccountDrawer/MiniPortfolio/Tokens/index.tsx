@@ -37,13 +37,13 @@ export default function Tokens({ account }: { account: string }) {
   )
 
 
-  const {tokens, loading} = useAccountTokens("0x20c470a569df5159b02253a79bc3a123b389140a528e9fbfdbe065bfe58e30dd");
+  const {tokens, loading} = useAccountTokens(account);
 
   if (loading) {
     return <PortfolioSkeleton />
   }
 
-  if (tokens.length === 0) {
+  if (!tokens || tokens?.length === 0) {
     // TODO: consider launching moonpay here instead of just closing the drawer
     return <EmptyWalletModule type="token" onNavigateClick={toggleWalletDrawer} />
   }

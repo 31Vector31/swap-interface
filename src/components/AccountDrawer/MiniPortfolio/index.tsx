@@ -84,6 +84,12 @@ const Pages: Array<Page> = [
     loggingElementName: InterfaceElementName.MINI_PORTFOLIO_TOKENS_TAB,
   },
   {
+    title: <Trans>Pools</Trans>,
+    key: 'pools',
+    component: Pools,
+    loggingElementName: InterfaceElementName.MINI_PORTFOLIO_POOLS_TAB,
+  },
+  {
     title: <Trans>Activity</Trans>,
     key: 'activity',
     component: Activity,

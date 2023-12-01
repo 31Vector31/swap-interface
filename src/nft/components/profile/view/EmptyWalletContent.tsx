@@ -52,7 +52,7 @@ type EmptyWalletContent = {
   urlPath?: string
   icon: React.ReactNode
 }
-type EmptyWalletContentType = 'nft' | 'token' | 'activity' | 'pool'
+type EmptyWalletContentType = 'nft' | 'token' | 'activity' | 'pool' | 'stake'
 const EMPTY_WALLET_CONTENT: { [key in EmptyWalletContentType]: EmptyWalletContent } = {
   nft: {
     title: <Trans>No NFTs yet</Trans>,
@@ -77,7 +77,12 @@ const EMPTY_WALLET_CONTENT: { [key in EmptyWalletContentType]: EmptyWalletConten
     title: <Trans>No pools yet</Trans>,
     subtitle: <Trans>Open a new position or create a pool to get started.</Trans>,
     actionText: <Trans>+ New position</Trans>,
-    urlPath: '/pool',
+    urlPath: '/pools/v2',
+    icon: <EmptyPoolsIcon />,
+  },
+  stake: {
+    title: <Trans>No stake yet</Trans>,
+    subtitle: <></>,
     icon: <EmptyPoolsIcon />,
   },
 }

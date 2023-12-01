@@ -12,6 +12,7 @@ import {useNavigate} from "react-router-dom";
 import {useAccountDrawer} from "../../index";
 import {useCallback, useMemo} from "react";
 import {useAccountSwapTransactions} from "../../../../hooks/useAccountSwapTransactions";
+import {EmptyWalletModule} from "../../../../nft/components/profile/view/EmptyWalletContent";
 
 const TokenBalanceText = styled(ThemedText.BodySecondary)`
   ${EllipsisStyle}
@@ -46,10 +47,16 @@ const DoubleLogoContainer = styled.div`
   }
 `
 
-export default function Stake({ account }: { account: string }) {
+export default function ActivityTab({ account }: { account: string }) {
+    const [drawerOpen, toggleWalletDrawer] = useAccountDrawer();
     const {trasactions, loading} = useAccountSwapTransactions(account);
+
     if (loading) {
         return <PortfolioSkeleton />
+    }
+
+    if (!trasactions || trasactions?.length === 0) {
+        return <EmptyWalletModule type="activity" onNavigateClick={toggleWalletDrawer} />;
     }
 
     return (

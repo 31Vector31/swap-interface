@@ -9,8 +9,9 @@ import styled from "styled-components";
 import {formatBalance} from "../../../../utils/sundry";
 import {TOKEN_LIST} from "../../../../constants/tokenList";
 import {useNavigate} from "react-router-dom";
-import {useAccountDrawer} from "../../index";
+import {useAccountDrawer, useToggleAccountDrawer} from "../../index";
 import {useCallback, useMemo} from "react";
+import {EmptyWalletModule} from "../../../../nft/components/profile/view/EmptyWalletContent";
 
 const TokenBalanceText = styled(ThemedText.BodySecondary)`
   ${EllipsisStyle}
@@ -24,9 +25,16 @@ const Logo = styled.img`
 `
 
 export default function Stake({ account }: { account: string }) {
+    const toggleWalletDrawer = useToggleAccountDrawer()
     const {pools, loading} = useAccountStake(account);
+
     if (loading) {
         return <PortfolioSkeleton />
+    }
+
+    if (!pools || pools?.length === 0) {
+        // TODO: consider launching moonpay here instead of just closing the drawer
+        return <EmptyWalletModule type="stake" onNavigateClick={toggleWalletDrawer} />
     }
 
     return (
