@@ -1,48 +1,19 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, Percent } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
 import { sendAnalyticsEvent, TraceEvent, useTrace } from 'analytics'
 import {useAccountDrawer, useToggleAccountDrawer} from 'components/AccountDrawer'
-import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import { V2Unsupported } from 'components/V2Unsupported'
-import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
 import {useCallback, useEffect, useState} from 'react'
 import { Plus } from 'react-feather'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 import { ThemedText } from 'theme/components'
 
 import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
 import { BlueCard, LightCard } from '../../components/Card'
 import { AutoColumn, ColumnCenter } from '../../components/Column'
-import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { AddRemoveTabs } from '../../components/NavigationTabs'
-import { MinimalPositionCard } from '../../components/PositionCard'
 import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
-import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
-import { ZERO_PERCENT } from '../../constants/misc'
-import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
-import { useCurrency } from '../../hooks/Tokens'
-import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
-import { useV2RouterContract } from '../../hooks/useContract'
-import { useIsSwapUnsupported } from '../../hooks/useIsSwapUnsupported'
-import useTransactionDeadline from '../../hooks/useTransactionDeadline'
-import { PairState } from '../../hooks/useV2Pairs'
-import { Field } from '../../state/mint/actions'
-import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../state/mint/hooks'
-import { useTransactionAdder } from '../../state/transactions/hooks'
-import { TransactionInfo, TransactionType } from '../../state/transactions/types'
-import { useUserSlippageToleranceWithDefault } from '../../state/user/hooks'
-import { calculateGasMargin } from '../../utils/calculateGasMargin'
-import { calculateSlippageAmount } from '../../utils/calculateSlippageAmount'
-import { currencyId } from '../../utils/currencyId'
-import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import AppBody from '../AppBody'
 import { Dots, Wrapper } from '../Pool/styled'
 import SwapCurrencyInputPanel from "./SwapCurrencyInputPanel";
@@ -53,6 +24,7 @@ import {TOKEN_LIST} from "../../constants/tokenList";
 import {getAccountCoinValue, getTokenPairMetadata} from "../../apiRequests";
 import {calculateRate, formatBalance} from "../../utils/sundry";
 import { TokenPairMetadataType } from 'pages/SwapBapt'
+import { PoolPriceBar } from './PoolPriceBar'
 
 const DEFAULT_ADD_V2_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -276,21 +248,6 @@ export default function AddLiquidity() {
     }
   }, [tokenPairMetadata, inputToken, outputToken]);
 
-  const swapTokens = useCallback(() => {
-    let prevInputToken = inputToken;
-    let prevOutputToken = outputToken;
-    setInputToken(prevOutputToken);
-    setOutputToken(prevInputToken);
-
-    let prevInputAmount = inputAmount;
-    let prevOutputAmount = outputAmount;
-    setInputAmount(prevOutputAmount);
-    setOutputAmount(prevInputAmount);
-
-    /*if(isLastEditInput) onOutputAmount(inputAmount);
-    else onInputAmount(outputAmount);*/
-  }, [inputToken, outputToken, inputAmount, outputAmount]);
-
   const onInputCurrencySelect = useCallback((currency: Currency) => {
     setInputToken(currency.decimals);
   }, [setInputToken]);
@@ -406,6 +363,18 @@ export default function AddLiquidity() {
                 onCurrencySelect={onOutputCurrencySelect}
                 balance={outputBalance}
             />
+            {tokenPairMetadata && <>
+              <LightCard padding="0px" $borderRadius="20px">
+                <RowBetween padding="1rem">
+                  <ThemedText.DeprecatedSubHeader fontWeight={535} fontSize={14}>
+                    Prices and pool share
+                  </ThemedText.DeprecatedSubHeader>
+                </RowBetween>{' '}
+                <LightCard padding="1rem" $borderRadius="20px">
+                  <PoolPriceBar tokenPairMetadata={tokenPairMetadata} inputToken={inputToken} outputToken={outputToken}/>
+                </LightCard>
+              </LightCard>
+            </>}
             {mainButton()}
             {/*{currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B] && pairState !== PairState.INVALID && (
               <>
