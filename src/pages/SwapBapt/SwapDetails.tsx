@@ -312,7 +312,7 @@ function AdvancedSwapDetails({inputFee, outputFee, networkCost, priceImpact, fee
                 <SwapLineItem label={"Token X Fee"} value={`${inputFee}%`}/>
                 <SwapLineItem label={"Token Y Fee"} value={`${outputFee}%`}/>
                 <SwapLineItem label={`Fee (${protocolFeePercent}%)`} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
-                <SwapLineItem label={"Network Cost"} value={`${networkCost}$`}/>
+                <SwapLineItem label={"Network Cost"} value={`${networkCost}$`} image={"/external_media/aptos-transparent.png"}/>
                 {/*<SwapLineItem label={`Tax (${taxPercent}%)`} value={`${taxValue} ${TOKEN_LIST[inputToken].symbol}`}/>*/}
                 <Separator />
                 <SwapLineItem label={"You will receive"} value={`${isLastEditInput ? "~" : ""}${getReceive()} ${TOKEN_LIST[outputToken].symbol}`}/>
