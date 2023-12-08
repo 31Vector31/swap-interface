@@ -28,6 +28,7 @@ import {useMemo, useState} from "react";
 import {formatBalance, numberWithCommas } from "utils/sundry";
 import {TOKEN_LIST} from "../../constants/tokenList";
 import { TokenPairMetadataType } from "pages/SwapBapt";
+import { InterfaceTrade, SubmittableTrade } from "state/routing/types";
 
 const StyledHeaderRow = styled(RowBetween)<{ disabled: boolean; open: boolean }>`
   padding: 0;

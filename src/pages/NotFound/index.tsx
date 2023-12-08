@@ -8,8 +8,8 @@ import styled from 'styled-components'
 import { ThemedText } from 'theme/components'
 import { useIsDarkMode } from 'theme/components/ThemeToggle'
 
-import darkImage from '../../assets/images/404-page-dark.png'
-import lightImage from '../../assets/images/404-page-light.png'
+import darkImage from '../../assets/images/404-page-dark.svg'
+import lightImage from '../../assets/images/404-page-light.svg'
 
 const Image = styled.img`
   max-width: 510px;

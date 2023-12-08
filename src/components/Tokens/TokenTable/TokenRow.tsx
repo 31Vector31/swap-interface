@@ -501,7 +501,7 @@ export const LoadedRow = forwardRef(({token, sortRank}: LoadedRowProps, ref: For
           listNumber={sortRank}
           tokenInfo={
             <ClickableName>
-              <img src={getTokenImgUrl(tokenName)} alt="" width={32} height={32}/>
+              <img src={getTokenImgUrl(tokenName)} style={{ borderRadius: "100%", overflow: "hidden" }} alt={tokenName} width={32} height={32}/>
               <TokenInfoCell>
                 <TokenName data-cy="token-name">{tokenName}</TokenName>
                 {/*<TokenSymbol>{token.symbol}</TokenSymbol>*/}

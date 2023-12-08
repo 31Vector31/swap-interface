@@ -430,11 +430,11 @@ export default function Landing() {
           <Glow />
         </GlowContainer>
         <ContentContainer isDarkMode={isDarkMode}>
-          <TitleText isDarkMode={isDarkMode} $visible={!!originCountry}>
-            {titles.header}
+          <TitleText isDarkMode={isDarkMode} $visible={true}>
+            SWAP SCALE EARN HOWL
           </TitleText>
-          <SubTextContainer $visible={!!originCountry}>
-            <SubText>{titles.subHeader}</SubText>
+          <SubTextContainer $visible={true}>
+            <SubText>Empowering DeFi on Aptos</SubText>
           </SubTextContainer>
           <ActionsContainer>
             <TraceEvent

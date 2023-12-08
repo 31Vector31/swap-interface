@@ -6,7 +6,7 @@ const initAptoolsApi = {
     method: "GET",
     headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer "
+        Authorization: "Bearer iiskLM6WrAI@lkwQwIWuD*RWIQOhqdpkiisk*M6WrAIAlk@QwIWuDTRWIQOhqdpk"
     },
 };
 

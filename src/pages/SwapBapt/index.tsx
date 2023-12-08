@@ -41,7 +41,7 @@ const SwapBg = styled.div`
   pointer-events: none;
   width: 100vw;
   height: 100vh;
-  z-index: -2;
+  z-index: 0;
   background: url("/images/ForestBg.webp") no-repeat bottom;
   background-size: contain;
 `
@@ -126,7 +126,7 @@ const StyledButtonLight = styled(ButtonLight)`
   border-radius: 16px;
 `
 
-export function Swap() {
+export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenIndex?: number | null }) {
     const isDark = useIsDarkMode()
     const theme = useTheme()
 
@@ -134,9 +134,9 @@ export function Swap() {
     const isSwapPage = location.pathname.includes('swap')
 
     const [, toggleAccountDrawer] = useAccountDrawer()
-
+    console.log(defaultOutputTokenIndex)
     const [inputToken, setInputToken] = useState(1);
-    const [outputToken, setOutputToken] = useState(9);
+    const [outputToken, setOutputToken] = useState(defaultOutputTokenIndex === null ? 9 : defaultOutputTokenIndex);
 
     const [inputAmount, setInputAmount] = useState("");
     const [outputAmount, setOutputAmount] = useState("");
@@ -390,59 +390,61 @@ export function Swap() {
     }
 
     return (
-        <SwapWrapper isDark={isDark}>
-            {isSwapPage && <SwapBg/>}
-            <SwapHeader/>
-            <div style={{ display: 'relative' }}>
-                <SwapSection>
-                    <Trace>
-                        <SwapCurrencyInputPanel
-                            label={<Trans>You pay</Trans>}
-                            value={inputAmount}
-                            currency={inputToken}
-                            onUserInput={onInputAmount}
-                            onCurrencySelect={onInputCurrencySelect}
-                            balance={inputBalance}
-                        />
-                    </Trace>
-                </SwapSection>
-                <ArrowWrapper clickable={true}>
-                    <ArrowContainer
-                        data-testid="swap-currency-button"
-                        onClick={swapTokens}
-                        color={theme.neutral1}
-                    >
-                        <ArrowDown size="16" color={theme.neutral1}/>
-                    </ArrowContainer>
-                </ArrowWrapper>
-            </div>
-            <AutoColumn gap="xs">
-                <div>
-                    <OutputSwapSection>
+        <>{isSwapPage && <SwapBg/>}
+            <SwapWrapper isDark={isDark}>
+                
+                <SwapHeader/>
+                <div style={{ display: 'relative' }}>
+                    <SwapSection>
                         <Trace>
                             <SwapCurrencyInputPanel
-                                label={<Trans>You receive</Trans>}
-                                value={outputAmount}
-                                currency={outputToken}
-                                onUserInput={onOutputAmount}
-                                onCurrencySelect={onOutputCurrencySelect}
-                                balance={outputBalance}
+                                label={<Trans>You pay</Trans>}
+                                value={inputAmount}
+                                currency={inputToken}
+                                onUserInput={onInputAmount}
+                                onCurrencySelect={onInputCurrencySelect}
+                                balance={inputBalance}
                             />
                         </Trace>
-                    </OutputSwapSection>
+                    </SwapSection>
+                    <ArrowWrapper clickable={true}>
+                        <ArrowContainer
+                            data-testid="swap-currency-button"
+                            onClick={swapTokens}
+                            color={theme.neutral1}
+                        >
+                            <ArrowDown size="16" color={theme.neutral1}/>
+                        </ArrowContainer>
+                    </ArrowWrapper>
                 </div>
-                <SwapDetails
-                    tokenPairMetadata={tokenPairMetadata}
-                    inputAmount={inputAmount}
-                    inputToken={inputToken}
-                    outputAmount={outputAmount}
-                    outputToken={outputToken}
-                    isLastEditInput={isLastEditInput}
-                />
-                <div>
-                    {mainButton()}
-                </div>
-            </AutoColumn>
-        </SwapWrapper>
+                <AutoColumn gap="xs">
+                    <div>
+                        <OutputSwapSection>
+                            <Trace>
+                                <SwapCurrencyInputPanel
+                                    label={<Trans>You receive</Trans>}
+                                    value={outputAmount}
+                                    currency={outputToken}
+                                    onUserInput={onOutputAmount}
+                                    onCurrencySelect={onOutputCurrencySelect}
+                                    balance={outputBalance}
+                                />
+                            </Trace>
+                        </OutputSwapSection>
+                    </div>
+                    <SwapDetails
+                        tokenPairMetadata={tokenPairMetadata}
+                        inputAmount={inputAmount}
+                        inputToken={inputToken}
+                        outputAmount={outputAmount}
+                        outputToken={outputToken}
+                        isLastEditInput={isLastEditInput}
+                    />
+                    <div>
+                        {mainButton()}
+                    </div>
+                </AutoColumn>
+            </SwapWrapper>
+        </>
     )
 }

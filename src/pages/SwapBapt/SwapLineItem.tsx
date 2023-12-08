@@ -16,16 +16,18 @@ const LabelText = styled(ThemedText.BodySmall)<{ hasTooltip?: boolean }>`
 interface SwapLineItemProps {
     label: string
     value: string
+    color?: string
 }
 
-export default function SwapLineItem({label, value}: SwapLineItemProps) {
+export default function SwapLineItem({label, value, color = "white"}: SwapLineItemProps) {
+    /* white: white, red: critical, yellow: deprecated_accentWarningSoft, warning: deprecated_accentWarning */
     return (
         <RowBetween>
             <LabelText data-testid="swap-li-label">
                 {label}
             </LabelText>
-            <ThemedText.Caption color="neutral2">
-                <DetailRowValue>{value}</DetailRowValue>
+            <ThemedText.Caption color="critical">
+                <DetailRowValue color={color}>{value}</DetailRowValue>
             </ThemedText.Caption>
         </RowBetween>
     )

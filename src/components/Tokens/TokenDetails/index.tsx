@@ -44,6 +44,7 @@ import InvalidTokenDetails from './InvalidTokenDetails'
 import {TokenType} from "../TokenTable/TokenRow";
 import Stake from 'components/Stake'
 import {getTokenImgUrl, getTokensStatistics} from "../../../apiRequests";
+import { TOKEN_LIST } from 'constants/tokenList'
 
 const TokenSymbol = styled.span`
   text-transform: uppercase;
@@ -63,6 +64,7 @@ const TokenTitle = styled.div`
 `
 
 function useOnChainToken(address: string | undefined, skip: boolean) {
+
   const token = useTokenFromActiveNetwork(skip || !address ? undefined : address)
 
   if (skip || !address || (token && token?.symbol === UNKNOWN_TOKEN_SYMBOL)) {
@@ -209,7 +211,8 @@ export default function TokenDetails({
       setToken(res.top_tokens_by_volume.find((el: TokenType) => el.token === tokenAddress));
     });
   }, []);
-
+  console.log(tokenAddress)
+  const defaultOutputTokenIndex = TOKEN_LIST.findIndex(x => x.symbol === tokenAddress || x.synonym === tokenAddress);
   return (
     <Trace
     >
@@ -266,8 +269,8 @@ export default function TokenDetails({
           </div>
           {tokenWarning && <TokenSafetyMessage tokenAddress={address} warning={tokenWarning} />}
           {detailedToken && <BalanceSummary token={detailedToken} />}*/}
-          <Swap/>
-          <Stake/>
+          <Swap defaultOutputTokenIndex={defaultOutputTokenIndex > -1 ? defaultOutputTokenIndex : 9}/>
+          <Stake defaultOutputTokenIndex={defaultOutputTokenIndex > -1 ? defaultOutputTokenIndex : 9}/>
         </RightPanel>
         {/*{detailedToken && <MobileBalanceSummaryFooter token={detailedToken} />}*/}
 

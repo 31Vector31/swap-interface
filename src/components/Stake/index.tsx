@@ -110,14 +110,14 @@ export type TokenPairMetadataType = {
     owner?: string;
 };
 
-export default function StakePage({ className }: { className?: string }) {
+export default function StakePage({ className, defaultOutputTokenIndex = null }: { className?: string, defaultOutputTokenIndex?: number | null }) {
 
     const location = useLocation()
 
     return (
         <Trace>
             <PageWrapper>
-                <Stake/>
+                <Stake defaultOutputTokenIndex={defaultOutputTokenIndex}/>
                 <NetworkAlert />
             </PageWrapper>
             {location.pathname === '/swap' && <SwitchLocaleLink />}
@@ -148,13 +148,13 @@ export type RewardsPoolInfoType = {
 
 export const manageStakeSections = ["Stake", "Unstake", "Collect Rewards"];
 
-export function Stake() {
+export function Stake({ defaultOutputTokenIndex = null }: { defaultOutputTokenIndex?: number | null }) {
     const isDark = useIsDarkMode()
     const theme = useTheme()
     const [, toggleAccountDrawer] = useAccountDrawer()
 
     const [selectedTab, setSelectedTab] = useState(0);
-    const [inputToken, setInputToken] = useState(9);
+    const [inputToken, setInputToken] = useState(defaultOutputTokenIndex !== null ? defaultOutputTokenIndex : 9);
     const [inputAmount, setInputAmount] = useState("");
     const [inputBalance, setInputBalance] = useState(0);
 

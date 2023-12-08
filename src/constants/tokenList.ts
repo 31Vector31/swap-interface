@@ -2,6 +2,7 @@ export type TokenType = {
     address: string;
     name: string;
     symbol: string;
+    synonym?: string;
     iconSrc: string;
     decimals: number;
 };
@@ -25,6 +26,7 @@ export const TOKEN_LIST: TokenType[] = [
     {
         name: "USDC",
         symbol: "USDC",
+        synonym: "USDC (LayerZero)",
         iconSrc: "/external_media/usd-coin.png",
         address:
             "0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa::asset::USDC",
@@ -33,6 +35,7 @@ export const TOKEN_LIST: TokenType[] = [
     {
         name: "Layer Zero - Tether USD",
         symbol: "TestUSDT",
+        synonym: "USDT (LayerZero)",
         iconSrc: "/external_media/USDT.png",
         address:
             "0x97c8aca6082f2ef7a0046c72eb81ebf203ca23086baf15557579570c86a89fd3::test_coins::TestUSDT",
@@ -49,6 +52,7 @@ export const TOKEN_LIST: TokenType[] = [
     {
         name: "Pancakeswap Token",
         symbol: "CAKE",
+        synonym: "Cake",
         iconSrc: "/external_media/CAKE.png",
         address:
             "0x159df6b7689437016108a019fd5bef736bac692b6d4a1f10c941f6fbb9a74ca6::oft::CakeOFT",

@@ -238,6 +238,9 @@ export const MenuDropdown = () => {
                 <Icon href="https://github.com/BAPTSWAP">
                   <GithubIconMenu className={styles.hover} width={24} height={24} color={themeVars.colors.neutral2} />
                 </Icon>
+                <Icon href="https://twitter.com/baptswap">
+                  <TwitterIconMenu className={styles.hover} width={24} height={24} color={themeVars.colors.neutral2} />
+                </Icon>
               </IconRow>
             </Column>
           </NavDropdown>

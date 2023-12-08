@@ -32,6 +32,8 @@ import {getAccountCoinValue, getProtocolFee, getTokenFee} from "../../apiRequest
 import {useWallet} from "@aptos-labs/wallet-adapter-react";
 import {AptosAccount, AptosClient, BCS, HexString, TxnBuilderTypes, Types} from "aptos";
 import {SWAP_ADDRESS2} from "../../constants/aptos";
+import { useUserSlippageTolerance, useUserSlippageToleranceWithDefault } from "state/user/hooks";
+import { SlippageTolerance } from "state/user/types";
 
 const StyledHeaderRow = styled(RowBetween)<{ disabled: boolean; open: boolean }>`
   padding: 0;
@@ -184,6 +186,13 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
         return value;
     }, [inputAmount]);
 
+    const baptValue = useMemo(() => {
+        if(!tokenPairMetadata) return "0";
+        const inputBalance = formatBalance(Number(tokenPairMetadata.balance_x), TOKEN_LIST[inputToken].decimals);
+        const outputBalance = formatBalance(Number(tokenPairMetadata.balance_y), TOKEN_LIST[outputToken].decimals);
+        return (inputBalance / outputBalance).toFixed(8)
+    }, [inputToken, outputToken, tokenPairMetadata])
+
     const receive = useMemo(() => {
         let value = isLastEditInput
             ? (
@@ -228,14 +237,17 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                                 <Trans>Fetching best price...</Trans>
                             </ThemedText.DeprecatedMain>
                         ) : null}*/}
-                        <div>{inputTokenReserves + " " + TOKEN_LIST[inputToken].symbol}</div>
+                        {inputAmount && <div>{1 + " " + TOKEN_LIST[inputToken].symbol} = {baptValue + " " + TOKEN_LIST[outputToken].symbol}</div>}
+                        {/* <div>{inputTokenReserves + " " + TOKEN_LIST[inputToken].symbol}</div> */}
                     </RowFixed>
                     <RowFixed gap="xs">
+                        {inputAmount && <div>{networkCost}$</div>}
                         <RotatingArrow stroke={theme.neutral3} open={Boolean(showDetails)}/>
                         {/*<div><Link to="/token-pair"><ThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.highSoft}>View Pair Info</ThemeButton></Link></div>*/}
-                        {/*{!showDetails && isSubmittableTrade(trade) && (
-                            <GasEstimateTooltip trade={trade} loading={syncing || loading} />
-                        )}*/}
+                        {/* {!showDetails && isSubmittableTrade(undefined) && (
+                            <GasEstimateTooltip trade={undefined} loading={false} />
+                        )} */}
+                        
                     </RowFixed>
                 </StyledHeaderRow>
                 <StyledHeaderRow data-testid="swap-details-header-row"
@@ -243,7 +255,7 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                                  disabled={false}
                                  open={showDetails}>
                     <RowFixed>
-                        <div>{outputTokenReserves + " " + TOKEN_LIST[outputToken].symbol}</div>
+                        {/* <div>{outputTokenReserves + " " + TOKEN_LIST[outputToken].symbol}</div> */}
                     </RowFixed>
                 </StyledHeaderRow>
             </TraceEvent>
@@ -268,21 +280,42 @@ interface AdvancedSwapDetailsProps {
     outputFee: number
 }
 
+function getSlippageData() {
+    const [userSlippageTolerance] = useUserSlippageTolerance();
+    const { formatSlippage } = useFormatter()
+    if (userSlippageTolerance === SlippageTolerance.Auto) {
+        return "0%";
+    }
+    return formatSlippage(userSlippageTolerance)
+}
+
 function AdvancedSwapDetails({inputFee, outputFee, networkCost, priceImpact, fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput, open, protocolFeePercent}: AdvancedSwapDetailsProps) {
+
+    const getPriceColor = (price: number) => {
+        if(price < 3) return "white";
+        if(price < 5 && price > 3) return "deprecated_accentWarningSoft"
+        if(price < 15 && price > 5) return "critical"
+        if(price > 15) return "deprecated_accentWarning"
+        return "white";
+    }
+
+    const getReceive = () => {
+        return (Number(receive?.replaceAll(" ", "") || 0) * Number(priceImpact) / 100)
+    }
 
     return (
         <AnimatedDropdown open={open}>
             <SwapDetailsWrapper gap="md" data-testid="advanced-swap-details">
                 <Separator />
-                <SwapLineItem label={"Price Impact"} value={`${priceImpact}%`}/>
-                <SwapLineItem label={"Max. slippage"} value={"0.5% (Auto)"}/>
+                <SwapLineItem label={"Price Impact"} color={getPriceColor(Number(priceImpact))} value={`${priceImpact}%`}/>
+                <SwapLineItem label={"Max. slippage"} value={`${getSlippageData()} (Auto)`}/>
                 <SwapLineItem label={"Token X Fee"} value={`${inputFee}%`}/>
                 <SwapLineItem label={"Token Y Fee"} value={`${outputFee}%`}/>
                 <SwapLineItem label={`Fee (${protocolFeePercent}%)`} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
-                <SwapLineItem label={"Network Cost"} value={`${networkCost} Gas Units`}/>
+                <SwapLineItem label={"Network Cost"} value={`${networkCost}$`}/>
                 {/*<SwapLineItem label={`Tax (${taxPercent}%)`} value={`${taxValue} ${TOKEN_LIST[inputToken].symbol}`}/>*/}
                 <Separator />
-                <SwapLineItem label={"You will receive"} value={`${isLastEditInput ? "~" : ""}${receive} ${TOKEN_LIST[outputToken].symbol}`}/>
+                <SwapLineItem label={"You will receive"} value={`${isLastEditInput ? "~" : ""}${getReceive()} ${TOKEN_LIST[outputToken].symbol}`}/>
             </SwapDetailsWrapper>
         </AnimatedDropdown>
     )
