@@ -43,7 +43,7 @@ import { OnChangeTimePeriod } from './ChartSection'
 import InvalidTokenDetails from './InvalidTokenDetails'
 import {TokenType} from "../TokenTable/TokenRow";
 import Stake from 'components/Stake'
-import {getTokenImgUrl, getTokensStatistics} from "../../../apiRequests";
+import {getTokenImgUrl, getTokenListInfo, getTokensStatistics} from "../../../apiRequests";
 import { TOKEN_LIST } from 'constants/tokenList'
 
 const TokenSymbol = styled.span`
@@ -205,13 +205,31 @@ export default function TokenDetails({
   }*/
 
   const [token, setToken] = useState(null);
+  const [prices, setPrices] = useState(null);
 
   useEffect(() => {
+    getTokenListInfo().then((res: any) => {
+      console.log(res)
+      //console.log(res.find((item: any) => item.name === "APT"))
+    })
     getTokensStatistics().then((res: any) => {
+      console.log(res)
+      const data = {
+        token: {
+          market: {
+            priceHistory: res.token_price_chart.map((item: {x: string, y: string}, index: number) => ({
+              id: index,
+              timestamp: Date.parse(item?.x),
+              value: item?.y
+            }))
+          }
+        }
+      }
+      console.log(data)
+      setPrices(data as any);
       setToken(res.top_tokens_by_volume.find((el: TokenType) => el.token === tokenAddress));
     });
   }, []);
-  console.log(tokenAddress)
   const defaultOutputTokenIndex = TOKEN_LIST.findIndex(x => x.symbol === tokenAddress || x.synonym === tokenAddress);
   return (
     <Trace
@@ -235,7 +253,7 @@ export default function TokenDetails({
                 <ShareButton currency={detailedToken} />
               </TokenActions>*/}
             </TokenInfoContainer>
-            {/*<ChartSection tokenPriceQuery={tokenPriceQuery} onChangeTimePeriod={onChangeTimePeriod} />*/}
+            <ChartSection tokenPriceQuery={prices as any} onChangeTimePeriod={() => null} />
 
             <StatsSection
               TVL={null}

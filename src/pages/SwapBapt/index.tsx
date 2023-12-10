@@ -134,7 +134,6 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
     const isSwapPage = location.pathname.includes('swap')
 
     const [, toggleAccountDrawer] = useAccountDrawer()
-    console.log(defaultOutputTokenIndex)
     const [inputToken, setInputToken] = useState(1);
     const [outputToken, setOutputToken] = useState(defaultOutputTokenIndex === null ? 9 : defaultOutputTokenIndex);
 

@@ -237,7 +237,7 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                                 <Trans>Fetching best price...</Trans>
                             </ThemedText.DeprecatedMain>
                         ) : null}*/}
-                        {inputAmount && <div>{1 + " " + TOKEN_LIST[inputToken].symbol} = {baptValue + " " + TOKEN_LIST[outputToken].symbol}</div>}
+                        {inputAmount && <div>{1 + " " + TOKEN_LIST[outputToken].symbol} = {baptValue + " " + TOKEN_LIST[inputToken].symbol}</div>}
                         {/* <div>{inputTokenReserves + " " + TOKEN_LIST[inputToken].symbol}</div> */}
                     </RowFixed>
                     <RowFixed gap="xs">
@@ -259,7 +259,7 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
                     </RowFixed>
                 </StyledHeaderRow>
             </TraceEvent>
-            <AdvancedSwapDetails inputFee={inputFee} outputFee={outputFee} networkCost={networkCost} priceImpact={priceImpact} protocolFeePercent={feePercent} open={showDetails} fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput}/>
+            <AdvancedSwapDetails inputFee={inputFee} outputFee={outputFee} networkCost={networkCost} priceImpact={priceImpact} protocolFeePercent={feePercent} open={showDetails} fee={fee} taxPercent={taxPercent} taxValue={taxValue} inputToken={inputToken} receive={receive} outputToken={outputToken} isLastEditInput={isLastEditInput} outputAmount={outputAmount}/>
         </Wrapper>
     )
 }
@@ -277,7 +277,8 @@ interface AdvancedSwapDetailsProps {
     priceImpact: string
     networkCost: string
     inputFee: number
-    outputFee: number
+    outputFee: number,
+    outputAmount: string;
 }
 
 function getSlippageData() {
@@ -289,7 +290,7 @@ function getSlippageData() {
     return formatSlippage(userSlippageTolerance)
 }
 
-function AdvancedSwapDetails({inputFee, outputFee, networkCost, priceImpact, fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput, open, protocolFeePercent}: AdvancedSwapDetailsProps) {
+function AdvancedSwapDetails({inputFee, outputFee, networkCost, priceImpact, fee, taxPercent, taxValue, inputToken, receive, outputToken, isLastEditInput, open, protocolFeePercent, outputAmount}: AdvancedSwapDetailsProps) {
 
     const getPriceColor = (price: number) => {
         if(price < 3) return "white";
@@ -299,8 +300,9 @@ function AdvancedSwapDetails({inputFee, outputFee, networkCost, priceImpact, fee
         return "white";
     }
 
+
     const getReceive = () => {
-        return (Number(receive?.replaceAll(" ", "") || 0) * Number(priceImpact) / 100)
+        return (Number(outputAmount) - (Number(receive?.replaceAll(" ", "") || 0) * Number(priceImpact) / 100)).toFixed(2)
     }
 
     return (
@@ -311,7 +313,7 @@ function AdvancedSwapDetails({inputFee, outputFee, networkCost, priceImpact, fee
                 <SwapLineItem label={"Max. slippage"} value={`${getSlippageData()} (Auto)`}/>
                 <SwapLineItem label={"Token X Fee"} value={`${inputFee}%`}/>
                 <SwapLineItem label={"Token Y Fee"} value={`${outputFee}%`}/>
-                <SwapLineItem label={`Fee (${protocolFeePercent}%)`} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
+                <SwapLineItem label={`Fee`} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
                 <SwapLineItem label={"Network Cost"} value={`${networkCost}$`} image={"/external_media/aptos-transparent.png"}/>
                 {/*<SwapLineItem label={`Tax (${taxPercent}%)`} value={`${taxValue} ${TOKEN_LIST[inputToken].symbol}`}/>*/}
                 <Separator />

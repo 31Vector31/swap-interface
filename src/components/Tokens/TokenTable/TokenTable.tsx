@@ -9,7 +9,7 @@ import styled from 'styled-components'
 import { MAX_WIDTH_MEDIA_BREAKPOINT } from '../constants'
 import { HeaderRow, LoadedRow, LoadingRow } from './TokenRow'
 import {TokenPairMetadataType} from "../../../pages/SwapBapt";
-import {getTokensStatistics} from "../../../apiRequests";
+import {getTokenInfo, getTokenListInfo, getTokensStatistics} from "../../../apiRequests";
 
 const GridContainer = styled.div`
   display: flex;
@@ -82,9 +82,25 @@ export default function TokenTable() {
 
   const [tokens, setTokens] = useState([]);
 
+  const getDetailedSingleInfo = async (uniqueNeededTokens: any) => {
+    const promises = uniqueNeededTokens.map((item: { type: string }) => getTokenInfo(item.type));
+    return Promise.all(promises);
+  }
+
   useEffect(() => {
       getTokensStatistics().then((res: any) => {
-          setTokens(res.top_tokens_by_volume);
+        const resTokens = res.top_tokens_by_volume || []
+        setTokens(resTokens);
+        getTokenListInfo().then(async (res: any) => {
+          const allTokens = res || [];
+          const neededNames: string[] = resTokens.map((item: { token?: string }) => item.token);
+          const neededTokens = allTokens.filter((item: any) => neededNames.includes(item.label))
+          console.log(neededTokens)
+          const uniqueNeededTokens = [...new Map(neededTokens.map((item: { label?: string }) =>
+            [item["label"], item])).values()];
+          console.log(uniqueNeededTokens)
+          console.log(await getDetailedSingleInfo(uniqueNeededTokens))
+        })
       });
   }, []);
 

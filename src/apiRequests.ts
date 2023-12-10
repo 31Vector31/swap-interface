@@ -18,6 +18,15 @@ const initAptosApi = {
     },
 };
 
+
+export function getTokenInfo(token: string) {
+    return fetch(`https://api.aptools.io/analytics/v1/token_rate?token=${token}`, initAptoolsApi).then((res) => res.json());
+}
+
+export function getTokenListInfo() {
+    return fetch(`https://api.aptools.io/analytics/v1/token_info_list`, initAptoolsApi).then((res) => res.json());
+}
+
 export function getTokensStatistics() {
     return fetch(`https://api.aptools.io/analytics/v1/tokens_statistics`, initAptoolsApi).then((res) => res.json());
 }

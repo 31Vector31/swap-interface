@@ -57,8 +57,7 @@ const ButtonContent = () => {
     )
   }
 
-  const isInvalidSlippage = validateUserSlippageTolerance(userSlippageTolerance) !== SlippageValidationResult.Valid
-  console.log(formatSlippage(userSlippageTolerance));
+  const isInvalidSlippage = validateUserSlippageTolerance(userSlippageTolerance) !== SlippageValidationResult.Valid;
 
   return (
     <IconContainerWithSlippage data-testid="settings-icon-with-slippage" gap="sm" displayWarning={isInvalidSlippage}>
