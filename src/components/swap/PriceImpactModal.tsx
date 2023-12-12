@@ -31,7 +31,7 @@ const StyledThemeButton = styled(ThemeButton)`
 `
 
 interface PriceImpactModalProps {
-  priceImpact: Percent
+  priceImpact: string | Percent
   onDismiss: () => void
   onContinue: () => void
 }
@@ -56,7 +56,8 @@ export default function PriceImpactModal({ priceImpact, onDismiss, onContinue }:
             <Trans>
               This transaction will result in a{' '}
               <ThemedText.BodyPrimary lineHeight="24px" color="critical" display="inline">
-                {formatPriceImpact(priceImpact)}
+                {/* {formatPriceImpact(priceImpact)} */}
+                {priceImpact as string}%
               </ThemedText.BodyPrimary>{' '}
               price impact on the market price of this pool. Do you wish to continue?
             </Trans>

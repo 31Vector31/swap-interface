@@ -25,6 +25,7 @@ const StyledPolling = styled.div`
   position: fixed;
   right: 0;
   transition: 250ms ease color;
+  z-index: 2;
 
   a {
     color: unset;

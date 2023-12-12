@@ -10,7 +10,7 @@ import SwapHeader from "./SwapHeader";
 import SwapCurrencyInputPanel from "./SwapCurrencyInputPanel";
 import {AutoColumn} from "../../components/Column";
 import {Trans} from "@lingui/macro";
-import {ButtonLight} from "../../components/Button";
+import {ButtonEmphasis, ButtonLight, ButtonSize, ThemeButton} from "../../components/Button";
 import {useWallet} from "@aptos-labs/wallet-adapter-react";
 import {AptosClient, Types} from "aptos";
 import {
@@ -31,7 +31,8 @@ import { SWAP_ADDRESS, SWAP_ADDRESS2 } from 'constants/aptos';
 import {getAccountCoinValue, getTokenPairMetadata} from 'apiRequests';
 import {TOKEN_LIST} from "../../constants/tokenList";
 import {useAccountDrawer} from "../../components/AccountDrawer";
-import {Currency} from "@uniswap/sdk-core";
+import {Currency, Percent} from "@uniswap/sdk-core";
+import PriceImpactModal from 'components/swap/PriceImpactModal';
 
 const SwapBg = styled.div`
   position: fixed;
@@ -126,6 +127,13 @@ const StyledButtonLight = styled(ButtonLight)`
   border-radius: 16px;
 `
 
+const StyledButtonRed = styled(ThemeButton)`
+  z-index: 0;
+  font-weight: 535;
+  border-radius: 16px;
+  width: 100%;
+`
+
 export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenIndex?: number | null }) {
     const isDark = useIsDarkMode()
     const theme = useTheme()
@@ -134,14 +142,19 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
     const isSwapPage = location.pathname.includes('swap')
 
     const [, toggleAccountDrawer] = useAccountDrawer()
-    const [inputToken, setInputToken] = useState(1);
-    const [outputToken, setOutputToken] = useState(defaultOutputTokenIndex === null ? 9 : defaultOutputTokenIndex);
+    const [inputToken, setInputToken] = useState(0);
+    const [outputToken, setOutputToken] = useState(defaultOutputTokenIndex === null ? 1 : defaultOutputTokenIndex);
 
     const [inputAmount, setInputAmount] = useState("");
     const [outputAmount, setOutputAmount] = useState("");
 
     const [inputBalance, setInputBalance] = useState(0);
     const [outputBalance, setOutputBalance] = useState(0);
+
+    const [priceImpact, setPriceImpact] = useState("");
+    const [showPriceImpactModal, setShowPriceImpactModal] = useState(false);
+    const [receiveNotSelected, setReceiveNotSelected] = useState(true);
+
 
     const [isInputRegistered, setIsInputRegistered] = useState<boolean>(false);
     const [isOutputRegistered, setIsOutputRegistered] = useState<boolean>(false);
@@ -356,11 +369,21 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
     }, [setInputToken]);
 
     const onOutputCurrencySelect = useCallback((currency: Currency) => {
+        setReceiveNotSelected(false);
         setOutputToken(currency.decimals);
     }, [setOutputToken]);
 
     const mainButton = () => {
+        console.log(inputAmount, priceImpact)
         switch (true) {
+            case receiveNotSelected:
+                return (<StyledButtonLight onClick={()=>{}} disabled={true}>
+                            <Trans>Select output token</Trans>
+                        </StyledButtonLight>);
+            case !tokenPairMetadata:
+                return (<StyledButtonLight onClick={()=>{}} disabled={true}>
+                            <Trans>Non-existent pair</Trans>
+                        </StyledButtonLight>);
             case !connected:
                 return <StyledButtonLight onClick={()=>toggleAccountDrawer()}>
                             <Trans>Connect wallet</Trans>
@@ -369,6 +392,13 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
                 return (<StyledButtonLight onClick={()=>{}} disabled={true}>
                             <Trans>Non-existent pair</Trans>
                         </StyledButtonLight>);
+            case (!!inputAmount && Number(priceImpact) > 5):
+                return (<StyledButtonRed 
+                        size={ButtonSize.large} 
+                        emphasis={ButtonEmphasis.destructive} 
+                        onClick={() => setShowPriceImpactModal(true)}>
+                            Swap anyway
+                    </StyledButtonRed>);
             case !isInputRegistered:
                 return (<StyledButtonLight onClick={()=>onRegisterToken(true)}>
                             <Trans>Register {TOKEN_LIST[inputToken].symbol}</Trans>
@@ -397,12 +427,14 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
                     <SwapSection>
                         <Trace>
                             <SwapCurrencyInputPanel
+                                onMax={() => setInputAmount(inputBalance.toString())}
                                 label={<Trans>You pay</Trans>}
                                 value={inputAmount}
                                 currency={inputToken}
                                 onUserInput={onInputAmount}
                                 onCurrencySelect={onInputCurrencySelect}
                                 balance={inputBalance}
+                                disableInput={receiveNotSelected}
                             />
                         </Trace>
                     </SwapSection>
@@ -421,12 +453,14 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
                         <OutputSwapSection>
                             <Trace>
                                 <SwapCurrencyInputPanel
+                                    onMax={() => setOutputAmount(outputBalance.toString())}
                                     label={<Trans>You receive</Trans>}
                                     value={outputAmount}
                                     currency={outputToken}
                                     onUserInput={onOutputAmount}
                                     onCurrencySelect={onOutputCurrencySelect}
                                     balance={outputBalance}
+                                    receiveNotSelected={receiveNotSelected}
                                 />
                             </Trace>
                         </OutputSwapSection>
@@ -438,12 +472,21 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
                         outputAmount={outputAmount}
                         outputToken={outputToken}
                         isLastEditInput={isLastEditInput}
+                        getPriceImpact={(impact) => setPriceImpact(impact)}
                     />
                     <div>
                         {mainButton()}
                     </div>
                 </AutoColumn>
             </SwapWrapper>
+            {showPriceImpactModal && <PriceImpactModal 
+                priceImpact={priceImpact}
+                onDismiss={() => setShowPriceImpactModal(false)}
+                onContinue={() => {
+                    setShowPriceImpactModal(false);
+                    onRegisterToken(true)
+                }}
+            />}
         </>
     )
 }

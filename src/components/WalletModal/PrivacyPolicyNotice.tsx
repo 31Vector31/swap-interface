@@ -17,18 +17,18 @@ export default function PrivacyPolicyNotice() {
   return (
     <ThemedText.BodySmall color="neutral2">
       <Trans>By connecting a wallet, you agree to Baptswap’s</Trans>{' '}
-      <StyledLink href="https://uniswap.org/terms-of-service/">
+      <StyledLink href="https://docs.baptswap.com">
         <Trans>Terms of Service</Trans>{' '}
       </StyledLink>
       <Trans>and consent to its</Trans>{' '}
-      <StyledLink href="https://uniswap.org/privacy-policy">
+      <StyledLink href="https://docs.baptswap.com">
         <Trans>Privacy Policy.</Trans>
       </StyledLink>
-      <LastUpdatedText>
+      {/* <LastUpdatedText>
         {' ('}
         <Trans>Last updated</Trans>
         {` ${LAST_UPDATED_DATE})`}
-      </LastUpdatedText>
+      </LastUpdatedText> */}
     </ThemedText.BodySmall>
   )
 }

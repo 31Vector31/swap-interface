@@ -8,14 +8,14 @@ export type TokenType = {
 };
 
 export const TOKEN_LIST: TokenType[] = [
-    {
+    /* {
         name: "BAPT",
         symbol: "TestBAPT",
         iconSrc: "/external_media/baptlabs-mini.png",
         address:
             "0x97c8aca6082f2ef7a0046c72eb81ebf203ca23086baf15557579570c86a89fd3::test_coins::TestBAPT",
         decimals: 6,
-    },
+    }, */
     {
         name: "Aptos",
         symbol: "APT",
@@ -23,7 +23,7 @@ export const TOKEN_LIST: TokenType[] = [
         address: "0x1::aptos_coin::AptosCoin",
         decimals: 8,
     },
-    {
+    /* {
         name: "USDC",
         symbol: "USDC",
         synonym: "USDC (LayerZero)",
@@ -81,7 +81,7 @@ export const TOKEN_LIST: TokenType[] = [
         address:
             "0x7fd500c11216f0fe3095d0c4b8aa4d64a4e2e04f83758462f2b127255643615::thl_coin::THL",
         decimals: 8,
-    },
+    }, */
     {
         name: "TestBAPTv2",
         symbol: "BAPTv2",
@@ -90,12 +90,12 @@ export const TOKEN_LIST: TokenType[] = [
             "0xcf8a79dbe461bf84391eadcb8125e2ff3a1b0327259ada782773a7d033a81103::bapt_v2::TestBAPTv2",
         decimals: 2,
     },
-    {
+    /* {
         name: "MAU V2",
         symbol: "MAUv2",
         iconSrc: "/external_media/MAU-icon.jpeg",
         address:
             "0x757cc7c94f646573bb30b2699e3aa265b97d54a135a8d1bbc0129212cc64ae6b::MAU::MAU",
         decimals: 8,
-    },
+    }, */
 ];

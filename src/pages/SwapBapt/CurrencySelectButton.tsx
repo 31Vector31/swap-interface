@@ -176,10 +176,11 @@ const TokenLogo = styled.img`
 
 interface CurrencySelectButtonProps {
     currency: number
+    receiveNotSelected?: boolean;
     onCurrencySelect: (currency: Currency) => void
 }
 
-export default function CurrencySelectButton({currency, onCurrencySelect}: CurrencySelectButtonProps) {
+export default function CurrencySelectButton({currency, receiveNotSelected, onCurrencySelect}: CurrencySelectButtonProps) {
 
     const [modalOpen, setModalOpen] = useState(false)
     const handleDismissSearch = useCallback(() => {
@@ -215,15 +216,20 @@ export default function CurrencySelectButton({currency, onCurrencySelect}: Curre
             >
                 <Aligner>
                     <RowFixed>
-                        <div>
+                        {!receiveNotSelected && <div style={{ display: "flex", alignItems: "center" }}>
                             <TokenLogo src={TOKEN_LIST[currency].iconSrc} alt={TOKEN_LIST[currency].name} height={24} width={24}/>
-                        </div>
-                        <StyledTokenName
+                        </div>}
+                        {!receiveNotSelected ? <StyledTokenName
                             className="token-symbol-container"
                             active={Number.isInteger(currency)}
                         >
                             {TOKEN_LIST[currency].symbol || <Trans>Select token</Trans>}
-                        </StyledTokenName>
+                        </StyledTokenName> : <StyledTokenName
+                            className="token-symbol-container"
+                            active={Number.isInteger(currency)}
+                        >
+                            {<Trans>Select token</Trans>}
+                        </StyledTokenName>}
                     </RowFixed>
                     <StyledDropDown selected={false} />
                 </Aligner>

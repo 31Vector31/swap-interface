@@ -39,10 +39,11 @@ export function SwitchLocaleLink() {
   return (
     <Container>
       <Trans>
-        Uniswap available in:{' '}
+        {/* Uniswap available in:{' '}
         <StyledInternalLink onClick={onClick} to={to}>
           {LOCALE_LABEL[targetLocale]}
-        </StyledInternalLink>
+        </StyledInternalLink> */}
+        <span></span>
       </Trans>
     </Container>
   )

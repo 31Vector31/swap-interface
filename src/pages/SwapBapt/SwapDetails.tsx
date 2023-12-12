@@ -66,9 +66,10 @@ interface SwapDetailsProps {
     outputToken: number
     tokenPairMetadata: TokenPairMetadataType | undefined
     isLastEditInput: boolean
-}
+    getPriceImpact: (impact: string) => void 
+}   
 
-export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken, outputAmount, outputToken, isLastEditInput}: SwapDetailsProps) {
+export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken, outputAmount, outputToken, isLastEditInput, getPriceImpact}: SwapDetailsProps) {
     const [showDetails, setShowDetails] = useState(false);
     const theme = useTheme()
 
@@ -95,6 +96,7 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
 
     const [inputFee, setInputFee] = useState(0);
     const [outputFee, setOutputFee] = useState(0);
+    console.log(inputToken, outputToken)
 
     const simulateTransaction = async () => {
         if(!account) return;
@@ -166,7 +168,9 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
         if(!tokenPairMetadata || !Number(inputAmount)) return "0";
         const inputBalance = formatBalance(Number(tokenPairMetadata.balance_x), TOKEN_LIST[inputToken].decimals);
         const outputBalance = formatBalance(Number(tokenPairMetadata.balance_y), TOKEN_LIST[outputToken].decimals);
-        return calculatePriceImpact(inputBalance, outputBalance, Number(inputAmount));
+        const value = calculatePriceImpact(inputBalance, outputBalance, Number(inputAmount))
+        if(getPriceImpact) getPriceImpact(value)
+        return value;
     }, [inputToken, tokenPairMetadata, outputToken, inputAmount]);
 
     const fee = useMemo(() => {
@@ -213,6 +217,8 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
             );
         return value;
     }, [outputAmount, totalTax, outputToken, isLastEditInput]);
+
+    if(!inputAmount) return <></>;
 
     return (
         <Wrapper>
@@ -285,7 +291,7 @@ function getSlippageData() {
     const [userSlippageTolerance] = useUserSlippageTolerance();
     const { formatSlippage } = useFormatter()
     if (userSlippageTolerance === SlippageTolerance.Auto) {
-        return "0%";
+        return "0% (Auto)";
     }
     return formatSlippage(userSlippageTolerance)
 }
@@ -294,9 +300,9 @@ function AdvancedSwapDetails({inputFee, outputFee, networkCost, priceImpact, fee
 
     const getPriceColor = (price: number) => {
         if(price < 3) return "white";
-        if(price < 5 && price > 3) return "deprecated_accentWarningSoft"
-        if(price < 15 && price > 5) return "critical"
-        if(price > 15) return "deprecated_accentWarning"
+        if(price < 5 && price >= 3) return "deprecated_accentWarning"
+        if(price >= 5) return "critical"
+        /* if(price > 15) return "deprecated_accentWarning" */
         return "white";
     }
 
@@ -304,20 +310,21 @@ function AdvancedSwapDetails({inputFee, outputFee, networkCost, priceImpact, fee
     const getReceive = () => {
         return (Number(outputAmount) - (Number(receive?.replaceAll(" ", "") || 0) * Number(priceImpact) / 100)).toFixed(2)
     }
+    console.log(inputToken)
 
     return (
         <AnimatedDropdown open={open}>
             <SwapDetailsWrapper gap="md" data-testid="advanced-swap-details">
                 <Separator />
                 <SwapLineItem label={"Price Impact"} color={getPriceColor(Number(priceImpact))} value={`${priceImpact}%`}/>
-                <SwapLineItem label={"Max. slippage"} value={`${getSlippageData()} (Auto)`}/>
+                <SwapLineItem label={"Max. slippage"} value={`${getSlippageData()}`}/>
                 <SwapLineItem label={"Token X Fee"} value={`${inputFee}%`}/>
                 <SwapLineItem label={"Token Y Fee"} value={`${outputFee}%`}/>
                 <SwapLineItem label={`Fee`} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
                 <SwapLineItem label={"Network Cost"} value={`${networkCost}$`} image={"/external_media/aptos-transparent.png"}/>
                 {/*<SwapLineItem label={`Tax (${taxPercent}%)`} value={`${taxValue} ${TOKEN_LIST[inputToken].symbol}`}/>*/}
                 <Separator />
-                <SwapLineItem label={"You will receive"} value={`${isLastEditInput ? "~" : ""}${getReceive()} ${TOKEN_LIST[outputToken].symbol}`}/>
+                {/* <SwapLineItem label={"You will receive"} value={`${isLastEditInput ? "~" : ""}${getReceive()} ${TOKEN_LIST[outputToken].symbol}`}/> */}
             </SwapDetailsWrapper>
         </AnimatedDropdown>
     )

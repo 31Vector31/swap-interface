@@ -90,14 +90,19 @@ export default function TokenTable() {
   useEffect(() => {
       getTokensStatistics().then((res: any) => {
         const resTokens = res.top_tokens_by_volume || []
+        console.log(res)
         setTokens(resTokens);
         getTokenListInfo().then(async (res: any) => {
           const allTokens = res || [];
+          console.log(allTokens)
+
           const neededNames: string[] = resTokens.map((item: { token?: string }) => item.token);
           const neededTokens = allTokens.filter((item: any) => neededNames.includes(item.label))
           console.log(neededTokens)
+          
           const uniqueNeededTokens = [...new Map(neededTokens.map((item: { label?: string }) =>
             [item["label"], item])).values()];
+          
           console.log(uniqueNeededTokens)
           console.log(await getDetailedSingleInfo(uniqueNeededTokens))
         })

@@ -127,10 +127,13 @@ interface SwapCurrencyInputPanelProps {
     currency: number
     onUserInput: (value: string) => void
     onCurrencySelect: (currency: Currency) => void
-    balance: number
+    balance: number;
+    onMax?: () => void;
+    receiveNotSelected?: boolean,
+    disableInput?: boolean
 }
 
-const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrencySelect, balance}: SwapCurrencyInputPanelProps) => {
+const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrencySelect, balance, onMax, receiveNotSelected, disableInput}: SwapCurrencyInputPanelProps) => {
 
     const theme = useTheme()
     const {account} = useWallet();
@@ -150,11 +153,13 @@ const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrency
                             className="token-amount-input"
                             value={value}
                             onUserInput={onUserInput}
+                            disabled={disableInput || receiveNotSelected}
                         />
                     </div>
                     <CurrencySelectButton
                         currency={currency}
                         onCurrencySelect={onCurrencySelect}
+                        receiveNotSelected={receiveNotSelected}
                     />
                 </InputRow>
                 <FiatRow>
@@ -176,15 +181,15 @@ const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrency
                                     Balance:{' '}
                                     {balance}
                                 </ThemedText.DeprecatedBody>
-                                {/*<TraceEvent
+                                <TraceEvent
                                     events={[BrowserEvent.onClick]}
                                     name={SwapEventName.SWAP_MAX_TOKEN_AMOUNT_SELECTED}
                                     element={InterfaceElementName.MAX_TOKEN_AMOUNT_BUTTON}
                                 >
-                                    <StyledBalanceMax onClick={()=>{}}>
+                                    <StyledBalanceMax onClick={onMax}>
                                         <Trans>Max</Trans>
                                     </StyledBalanceMax>
-                                </TraceEvent>*/}
+                                </TraceEvent>
                             </RowFixed>
                         ) : (
                             <span />
