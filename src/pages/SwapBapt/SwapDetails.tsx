@@ -165,7 +165,10 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
     }, [outputToken, tokenPairMetadata]);
 
     const priceImpact = useMemo(() => {
-        if(!tokenPairMetadata || !Number(inputAmount)) return "0";
+        if(!tokenPairMetadata || !Number(inputAmount)) {
+            if(getPriceImpact) getPriceImpact("")
+            return "0"
+        };
         const inputBalance = formatBalance(Number(tokenPairMetadata.balance_x), TOKEN_LIST[inputToken].decimals);
         const outputBalance = formatBalance(Number(tokenPairMetadata.balance_y), TOKEN_LIST[outputToken].decimals);
         const value = calculatePriceImpact(inputBalance, outputBalance, Number(inputAmount))

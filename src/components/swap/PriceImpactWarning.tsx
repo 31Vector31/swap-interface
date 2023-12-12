@@ -16,7 +16,7 @@ const StyledCard = styled(OutlineCard)`
 `
 
 interface PriceImpactWarningProps {
-  priceImpact: Percent
+  priceImpact: Percent | string
 }
 
 export default function PriceImpactWarning({ priceImpact }: PriceImpactWarningProps) {
@@ -41,7 +41,7 @@ export default function PriceImpactWarning({ priceImpact }: PriceImpactWarningPr
               </ThemedText.DeprecatedSubHeader>
             </RowFixed>
             <ThemedText.DeprecatedLabel textAlign="right" fontSize={14} color="critical">
-              {formatPriceImpact(priceImpact)}
+              {typeof priceImpact === "string" ? priceImpact : formatPriceImpact(priceImpact)}
             </ThemedText.DeprecatedLabel>
           </RowBetween>
         </MouseoverTooltip>

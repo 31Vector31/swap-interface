@@ -8,7 +8,7 @@ import {NetworkAlert} from "../../components/NetworkAlert/NetworkAlert";
 import {SwitchLocaleLink} from "../../components/SwitchLocaleLink";
 import SwapHeader from "./SwapHeader";
 import SwapCurrencyInputPanel from "./SwapCurrencyInputPanel";
-import {AutoColumn} from "../../components/Column";
+import Column, {AutoColumn} from "../../components/Column";
 import {Trans} from "@lingui/macro";
 import {ButtonEmphasis, ButtonLight, ButtonSize, ThemeButton} from "../../components/Button";
 import {useWallet} from "@aptos-labs/wallet-adapter-react";
@@ -33,6 +33,8 @@ import {TOKEN_LIST} from "../../constants/tokenList";
 import {useAccountDrawer} from "../../components/AccountDrawer";
 import {Currency, Percent} from "@uniswap/sdk-core";
 import PriceImpactModal from 'components/swap/PriceImpactModal';
+import { RowBetween, RowFixed } from 'components/Row';
+import PriceImpactWarning from 'components/swap/PriceImpactWarning';
 
 const SwapBg = styled.div`
   position: fixed;
@@ -132,6 +134,12 @@ const StyledButtonRed = styled(ThemeButton)`
   font-weight: 535;
   border-radius: 16px;
   width: 100%;
+`
+
+const Wrapper = styled(Column)`
+  border: 1px solid ${({ theme }) => theme.surface3};
+  border-radius: 16px;
+  padding: 12px 16px;
 `
 
 export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenIndex?: number | null }) {
@@ -392,7 +400,7 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
                 return (<StyledButtonLight onClick={()=>{}} disabled={true}>
                             <Trans>Non-existent pair</Trans>
                         </StyledButtonLight>);
-            case (!!inputAmount && Number(priceImpact) > 5):
+            case (!!inputAmount && Number(priceImpact) >= 5):
                 return (<StyledButtonRed 
                         size={ButtonSize.large} 
                         emphasis={ButtonEmphasis.destructive} 
@@ -474,6 +482,8 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
                         isLastEditInput={isLastEditInput}
                         getPriceImpact={(impact) => setPriceImpact(impact)}
                     />
+                    {(priceImpact && Number(priceImpact) >= 5) && <PriceImpactWarning priceImpact={priceImpact} />}
+
                     <div>
                         {mainButton()}
                     </div>
