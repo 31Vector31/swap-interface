@@ -45,10 +45,10 @@ export default function Tokens({ account }: { account: string }) {
   }
 
 
-  getAccountResources(account, 50).then((e:any) => {
+ /*  getAccountResources(account, 50).then((e:any) => {
     setUserTokens(e.filter((x:any) => x?.type?.indexOf("0x1::coin") > -1))
   })
-  console.log(userTokens)
+  console.log(userTokens) */
 
   if (!tokens || tokens?.length === 0) {
     // TODO: consider launching moonpay here instead of just closing the drawer
