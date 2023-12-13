@@ -20,14 +20,15 @@ import { ExpandoRow } from '../ExpandoRow'
 import { PortfolioLogo } from '../PortfolioLogo'
 import PortfolioRow, { PortfolioSkeleton, PortfolioTabWrapper } from '../PortfolioRow'
 import {useAccountTokens} from "../../../../hooks/useAccountTokens";
-import {getTokenImgUrl} from "../../../../apiRequests";
+import {getAccountResources, getTokenImgUrl} from "../../../../apiRequests";
 
 export default function Tokens({ account }: { account: string }) {
   const toggleWalletDrawer = useToggleAccountDrawer()
   const hideSmallBalances = useAtomValue(hideSmallBalancesAtom)
-  const [showHiddenTokens, setShowHiddenTokens] = useState(false)
+  const [showHiddenTokens, setShowHiddenTokens] = useState(false);
+  const [userTokens, setUserTokens] = useState([]);
 
-  const { data } = useCachedPortfolioBalancesQuery({ account })
+  const { data, ...rest } = useCachedPortfolioBalancesQuery({ account })
 
   const tokenBalances = data?.portfolios?.[0].tokenBalances as TokenBalance[] | undefined
 
@@ -43,6 +44,12 @@ export default function Tokens({ account }: { account: string }) {
     return <PortfolioSkeleton />
   }
 
+
+  getAccountResources(account, 50).then((e:any) => {
+    setUserTokens(e.filter((x:any) => x?.type?.indexOf("0x1::coin") > -1))
+  })
+  console.log(userTokens)
+
   if (!tokens || tokens?.length === 0) {
     // TODO: consider launching moonpay here instead of just closing the drawer
     return <EmptyWalletModule type="token" onNavigateClick={toggleWalletDrawer} />
@@ -52,16 +59,17 @@ export default function Tokens({ account }: { account: string }) {
 
   return (
     <PortfolioTabWrapper>
-      {tokens.map(
+      {/* {tokens.map(
         (token: any, index: any) =>
             token && <TokenRow key={index} token={token} />
-      )}
-      {/*<ExpandoRow isExpanded={showHiddenTokens} toggle={toggleHiddenTokens} numItems={hiddenTokens.length}>
-        {hiddenTokens.map(
+      )} */}
+      <ExpandoRow isExpanded={showHiddenTokens} toggle={toggleHiddenTokens} numItems={hiddenTokens.length}>
+        {/* {hiddenTokens.map(
           (tokenBalance) =>
             tokenBalance.token && <TokenRow key={tokenBalance.id} {...tokenBalance} token={tokenBalance.token} />
-        )}
-      </ExpandoRow>*/}
+        )} */}
+        {/* {userTokens.map((item: any, index) => <TokenRow key={index}  token={item.type} />)} */}
+      </ExpandoRow>
     </PortfolioTabWrapper>
   )
 }

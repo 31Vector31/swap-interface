@@ -382,11 +382,10 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
     }, [setOutputToken]);
 
     const mainButton = () => {
-        console.log(inputAmount, priceImpact)
         switch (true) {
             case receiveNotSelected:
                 return (<StyledButtonLight onClick={()=>{}} disabled={true}>
-                            <Trans>Select output token</Trans>
+                            Select output token
                         </StyledButtonLight>);
             case !tokenPairMetadata:
                 return (<StyledButtonLight onClick={()=>{}} disabled={true}>
@@ -400,7 +399,7 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
                 return (<StyledButtonLight onClick={()=>{}} disabled={true}>
                             <Trans>Non-existent pair</Trans>
                         </StyledButtonLight>);
-            case (!!inputAmount && Number(priceImpact) >= 5):
+            case (!!inputAmount && Number(priceImpact) >= 15):
                 return (<StyledButtonRed 
                         size={ButtonSize.large} 
                         emphasis={ButtonEmphasis.destructive} 
@@ -435,7 +434,7 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
                     <SwapSection>
                         <Trace>
                             <SwapCurrencyInputPanel
-                                onMax={() => setInputAmount(inputBalance.toString())}
+                                onMax={() =>  onInputAmount(inputBalance.toString())}
                                 label={<Trans>You pay</Trans>}
                                 value={inputAmount}
                                 currency={inputToken}
@@ -443,6 +442,7 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
                                 onCurrencySelect={onInputCurrencySelect}
                                 balance={inputBalance}
                                 disableInput={receiveNotSelected}
+                                hideMax={receiveNotSelected}
                             />
                         </Trace>
                     </SwapSection>
@@ -469,6 +469,7 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
                                     onCurrencySelect={onOutputCurrencySelect}
                                     balance={outputBalance}
                                     receiveNotSelected={receiveNotSelected}
+                                    canMax={false}
                                 />
                             </Trace>
                         </OutputSwapSection>
@@ -482,7 +483,7 @@ export function Swap({ defaultOutputTokenIndex = null }: { defaultOutputTokenInd
                         isLastEditInput={isLastEditInput}
                         getPriceImpact={(impact) => setPriceImpact(impact)}
                     />
-                    {(priceImpact && Number(priceImpact) >= 5) && <PriceImpactWarning priceImpact={priceImpact} />}
+                    {(priceImpact && Number(priceImpact) >= 15) && <PriceImpactWarning priceImpact={priceImpact} />}
 
                     <div>
                         {mainButton()}

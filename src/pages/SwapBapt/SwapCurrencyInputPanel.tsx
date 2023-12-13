@@ -130,10 +130,12 @@ interface SwapCurrencyInputPanelProps {
     balance: number;
     onMax?: () => void;
     receiveNotSelected?: boolean,
-    disableInput?: boolean
+    disableInput?: boolean,
+    canMax?: boolean,
+    hideMax?: boolean,
 }
 
-const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrencySelect, balance, onMax, receiveNotSelected, disableInput}: SwapCurrencyInputPanelProps) => {
+const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrencySelect, balance, onMax, receiveNotSelected, disableInput, canMax = true, hideMax = false}: SwapCurrencyInputPanelProps) => {
 
     const theme = useTheme()
     const {account} = useWallet();
@@ -142,6 +144,8 @@ const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrency
     const handleDismissSearch = useCallback(() => {
         setModalOpen(false)
     }, [setModalOpen])*/
+
+    const hideBalance = !canMax && receiveNotSelected
 
     return (
         <InputPanel>
@@ -171,7 +175,7 @@ const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrency
                         <div></div>
                         {account ? (
                             <RowFixed style={{ height: '16px' }}>
-                                <ThemedText.DeprecatedBody
+                                {!hideBalance && <ThemedText.DeprecatedBody
                                     data-testid="balance-text"
                                     color={theme.neutral2}
                                     fontWeight={485}
@@ -180,15 +184,15 @@ const SwapCurrencyInputPanel = ({label, value, currency, onUserInput, onCurrency
                                 >
                                     Balance:{' '}
                                     {balance}
-                                </ThemedText.DeprecatedBody>
+                                </ThemedText.DeprecatedBody>}
                                 <TraceEvent
                                     events={[BrowserEvent.onClick]}
                                     name={SwapEventName.SWAP_MAX_TOKEN_AMOUNT_SELECTED}
                                     element={InterfaceElementName.MAX_TOKEN_AMOUNT_BUTTON}
                                 >
-                                    <StyledBalanceMax onClick={onMax}>
+                                    {(canMax && !hideMax) && <StyledBalanceMax onClick={onMax}>
                                         <Trans>Max</Trans>
-                                    </StyledBalanceMax>
+                                    </StyledBalanceMax>}
                                 </TraceEvent>
                             </RowFixed>
                         ) : (

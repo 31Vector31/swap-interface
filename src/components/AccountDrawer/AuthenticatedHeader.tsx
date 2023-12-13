@@ -281,7 +281,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
         {aptBalance !== null ? (
           <FadeInColumn gap="xs">
             <ThemedText.HeadlineLarge fontWeight={535} data-testid="portfolio-total-balance">
-              {aptBalance + " APT"}
+              {aptBalance + " BAPTv2"}
               {/*{formatNumber({
                 input: aptBalance,
                 type: NumberType.PortfolioBalance,

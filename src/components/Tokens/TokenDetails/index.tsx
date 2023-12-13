@@ -209,7 +209,6 @@ export default function TokenDetails({
 
   useEffect(() => {
     getTokenListInfo().then((res: any) => {
-      console.log(res)
       //console.log(res.find((item: any) => item.name === "APT"))
     })
     getTokensStatistics().then((res: any) => {

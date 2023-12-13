@@ -96,7 +96,6 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
 
     const [inputFee, setInputFee] = useState(0);
     const [outputFee, setOutputFee] = useState(0);
-    console.log(inputToken, outputToken)
 
     const simulateTransaction = async () => {
         if(!account) return;
@@ -177,9 +176,9 @@ export default function SwapDetails({tokenPairMetadata, inputAmount, inputToken,
     }, [inputToken, tokenPairMetadata, outputToken, inputAmount]);
 
     const fee = useMemo(() => {
-        let value = (Number(inputAmount) * protocolFee).toLocaleString(undefined, {maximumSignificantDigits: 8});
+        let value = (Number(outputAmount) * protocolFee).toLocaleString(undefined, {maximumSignificantDigits: 8});
         return value;
-    }, [inputAmount, protocolFee]);
+    }, [outputAmount, protocolFee]);
 
     const feePercent = useMemo(() => {
         let value = parseFloat((protocolFee * 100).toFixed(2));
@@ -313,7 +312,6 @@ function AdvancedSwapDetails({inputFee, outputFee, networkCost, priceImpact, fee
     const getReceive = () => {
         return (Number(outputAmount) - (Number(receive?.replaceAll(" ", "") || 0) * Number(priceImpact) / 100)).toFixed(2)
     }
-    console.log(inputToken)
 
     return (
         <AnimatedDropdown open={open}>
@@ -323,7 +321,7 @@ function AdvancedSwapDetails({inputFee, outputFee, networkCost, priceImpact, fee
                 <SwapLineItem label={"Max. slippage"} value={`${getSlippageData()}`}/>
                 <SwapLineItem label={"Token X Fee"} value={`${inputFee}%`}/>
                 <SwapLineItem label={"Token Y Fee"} value={`${outputFee}%`}/>
-                <SwapLineItem label={`Fee`} value={`${fee} ${TOKEN_LIST[inputToken].symbol}`}/>
+                <SwapLineItem label={`Fee`} value={`${fee} ${TOKEN_LIST[outputToken].symbol}`}/>
                 <SwapLineItem label={"Network Cost"} value={`${networkCost}$`} image={"/external_media/aptos-transparent.png"}/>
                 {/*<SwapLineItem label={`Tax (${taxPercent}%)`} value={`${taxValue} ${TOKEN_LIST[inputToken].symbol}`}/>*/}
                 <Separator />
