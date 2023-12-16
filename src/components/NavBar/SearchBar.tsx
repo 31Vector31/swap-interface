@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useLingui } from '@lingui/react'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfaceSectionName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
@@ -20,7 +20,10 @@ import { useIsMobile, useIsTablet } from 'nft/hooks'
 import { useIsNavSearchInputVisible } from 'nft/hooks/useIsNavSearchInputVisible'
 import { ChangeEvent, useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+import { ApolloError, useQuery } from '@apollo/client'
+import gql from 'graphql-tag'
 import styled from 'styled-components'
+import { subheadSmall } from 'nft/css/common.css'
 
 import { ChevronLeftIcon, NavMagnifyingGlassIcon } from '../../nft/components/icons'
 import { NavIcon } from './NavIcon'
@@ -43,6 +46,23 @@ const KeyShortCut = styled.div`
   opacity: 0.6;
   backdrop-filter: blur(60px);
 `
+const query = gql`
+query FindCoin($name: String) {
+  coin_infos(where: {name: {_like: $name}}, limit: 10) {
+    coin_type
+    decimals
+    name
+    symbol
+  }
+}
+`
+
+interface Token {
+    coin_type: string
+    decimals: number
+    name: string
+    symbol: string
+}
 
 export const SearchBar = () => {
   const [isOpen, toggleOpen] = useReducer((state: boolean) => !state, false)
@@ -70,7 +90,13 @@ export const SearchBar = () => {
   const [reducedTokens, reducedCollections] = organizeSearchResults(isNFTPage, tokens ?? [], collections ?? [])*/
 
   /*console.log(debouncedSearchValue);*/
-  const { tokens, loading: tokensAreLoading } = useTokenSearch(debouncedSearchValue);
+  // const { tokens, loading: tokensAreLoading } = useTokenSearch(debouncedSearchValue);
+
+  const {loading: tokensAreLoading, error, data: tokens} = useQuery(query,{
+    variables: { name: `%${searchValue}%` },
+  })
+  console.log('search value: \n',searchValue)
+  console.log('hi\n'+JSON.stringify(tokens))
   /*console.log(tokens);
   console.log(tokensAreLoading);*/
 
@@ -213,14 +239,53 @@ export const SearchBar = () => {
         </Row>
         <Column overflow="hidden" className={clsx(isOpen ? styles.visible : styles.hidden)}>
           {isOpen && (
-            <SearchBarDropdown
-              toggleOpen={toggleOpen}
-              tokens={tokens}
-              collections={[]}
-              queryText={debouncedSearchValue}
-              hasInput={debouncedSearchValue.length > 0}
-              isLoading={tokensAreLoading}
-            />
+            // <SearchBarDropdown
+            //   toggleOpen={toggleOpen}
+            //   tokens={tokens}
+            //   collections={[]}
+            //   queryText={debouncedSearchValue}
+            //   hasInput={debouncedSearchValue.length > 0}
+            //   isLoading={tokensAreLoading}
+            // />
+            <Column overflow="hidden" className={clsx(styles.searchBarDropdownNft, styles.searchBarScrollable)}>
+                <Box opacity={tokensAreLoading ? '0.3' : '1'} transition="125">
+                <Row paddingX="16" paddingY="4" gap="8" color="neutral2" className={subheadSmall} style={{ lineHeight: '20px' }}>
+                  <Box><Trans>Tokens</Trans></Box>
+                </Row>
+                  {
+                    tokens?.coin_infos.length !== 0 ? 
+                    tokens?.coin_infos ? tokens.coin_infos.map((token: Token) => {
+                      const { coin_type, decimals, name, symbol} = token as Token;
+                      return (
+                        <Row className={styles.suggestionRow} key={coin_type}>
+                          <Row width="full">
+                            <Box className={styles.imageHolder} />
+                            <Column gap="4" width="full">
+                              <Column className={styles.suggestionPrimaryContainer}>
+                                <Box className={styles.primaryText}>{name}</Box>
+                              </Column>
+
+                              <Row justifyContent="space-between">
+                                <Box className={styles.secondaryText}>{symbol}</Box>
+                                <Box borderRadius="round" height="16" width="48" background="surface2" />
+                              </Row>
+                            </Column>
+                          </Row>
+                      </Row>
+                      )
+                    }) : (
+                      <Row className={styles.suggestionRow}>
+                        <Box><Trans>Loading...</Trans></Box>
+                      </Row>
+                    )
+                    : (
+                      <Box className={styles.notFoundContainer}>
+                          <Trans>No tokens found.</Trans>
+                      </Box>
+                    )
+                  }
+                </Box>
+            </Column>
           )}
         </Column>
       </Column>
